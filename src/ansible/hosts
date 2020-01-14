@@ -1,0 +1,51 @@
+# This is the default ansible 'hosts' file.
+#
+# It should live in /etc/ansible/hosts
+#
+#   - Comments begin with the '#' character
+#   - Blank lines are ignored
+#   - Groups of hosts are delimited by [header] elements
+#   - You can enter hostnames or ip addresses
+#   - A hostname/ip can be a member of multiple groups
+[tl1_ne]
+mtc6_tl1 ansible_host=10.220.165.27 ansible_user=emsadmin ansible_password=password
+
+[netconf_ne]
+mtc6_nc ansible_host=10.220.165.27 ansible_user=emsadmin ansible_password=password
+cx_nc ansible_host=10.220.165.26 ansible_user=secadmin ansible_password=password
+
+[cli_ne]
+cx_cli ansible_host=10.220.165.26 ansible_user=secadmin ansible_password=password
+mtc6_cli ansible_host=10.220.165.27 ansible_user=emsadmin ansible_password=password
+
+[cli_ne:vars]
+ansible_user=secadmin
+ansible_ssh_pass=password
+ansible_network_os=infn
+ansible_become=yes
+ansible_become_method=enable
+
+[paramiko_connection]
+look_for_keys=no
+
+[csim]
+10.220.165.22 ansible_connection=ssh ansible_ssh_user=infinera ansible_ssh_pass=password
+
+[swne]
+node1 ansible_host=10.220.71.94 ansible_user=emsadmin ansible_password=password tid=
+# dtnx2_tl1 ansible_host=10.220.165.24 ansible_user=emsadmin ansible_password=password tid=S_DTNX2
+# dtnx3_tl1 ansible_host=10.220.165.25 ansible_user=emsadmin ansible_password=password tid=S_DTNX3
+# dtnx4_tl1 ansible_host=10.220.84.153 ansible_user=emsadmin ansible_password=password tid=
+dtnx4_tl1 ansible_host=10.220.165.84 ansible_user=emsadmin ansible_password=password tid=
+
+[ntp]
+node_ntp ansible_host=10.220.66.24 ansible_user=emsadmin ansible_password=password tid=
+
+[ssh]
+node_ssh ansible_host=10.220.165.84 ansible_user=emsadmin ansible_password=password tid=
+
+[radius]
+node_radius ansible_host=10.220.165.87 ansible_user=emsadmin ansible_password=password tid=
+
+[acf]
+node_acf ansible_host=10.220.165.86 ansible_user=emsadmin ansible_password=password tid=

@@ -1,0 +1,70 @@
+---
+
+db_configs:
+  # Number of times to retry the backup check after the backup operation has been initiated
+  check_backup_retries: 5
+
+  # Delay in seconds between each retry
+  check_backup_delay: 60
+
+  # Delay in minutes after the restore operation has been initiated
+  # Common for restore, and restore_local tasks
+  restore_pause: 10
+
+##############################################################################################################################################  
+  cleanup:
+    run_id: "UNIQUE_RUN_ID" # File DB_UNIQUE_RUN_ID_NODENAME will be deleted from NE
+    #file_mapping is used when you want to use diffrent DB names for diffrent NEs 
+    file_mapping:
+      "XTC284": "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" # For NE1 , "DB_1823012220190829061801" file will be considered for cleanup
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" # For NE1 , "DB_1823012220190829061802" file will be considered for cleanup
+
+##############################################################################################################################################  
+  backup:
+    # ftp server details , please refer ftp_server.yml
+    primary_ftp_server: "{{ ftp_server.SERVER_1 }}"
+    primary_path: "dbbkups"
+    # ftp server details , please refer ftp_server.yml
+    secondary_ftp_server: "{{ ftp_server.SERVER_2 }}"
+    secondary_path: "secondary_dbbkups"
+    simultaneous: false
+    overwrite: false
+    run_id: "UNIQUE_RUN_ID" # File will be saved as DB_UNIQUE_RUN_ID_NODENAME
+    #file_mapping is used when you want to use diffrent DB names for diffrent NEs 
+    file_mapping: 
+      "XTC284": "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" # For NE1 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" file will be considered for backup
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" # For NE2 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" file will be considered for backup
+
+##############################################################################################################################################  
+  restore_local:
+    run_id: "UNIQUE_RUN_ID" 
+    #file_mapping is used when you want to use diffrent DB names for diffrent NEs 
+    file_mapping:
+      "XTC284": "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" # For NE1 , "DB_1823012220190829061801" file will be considered for restore_local
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" # For NE1 , "DB_1823012220190829061802" file will be considered for restore_local
+
+##############################################################################################################################################  
+  restore:
+    # ftp server details , please refer ftp_server.yml
+    # please note that , same input section will be used by download task ,download task will not apply restore command after download
+    primary_ftp_server: "{{ ftp_server.SERVER_1 }}"
+    primary_path: "dbbkups"
+    run_id: "UNIQUE_RUN_ID"  #Run ID used for backup,  DB_UNIQUE_RUN_ID_NODENAME File will be downloaded
+    #file_mapping is used when you want to use diffrent DB names for diffrent NEs 
+    file_mapping: 
+      "XTC284": "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" # For NE1 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" file will be considered for restore
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" # For NE2 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" file will be considered for restore
+
+##############################################################################################################################################  
+# schedule db backup
+  schedule:
+    # NOTE: It is left to the user to give the appropriate input:
+    #    1. No `day` to be specified when `interval` is defined to be `daily`
+    #    2. The `day` to be specified when the `interval` is `weekly`
+    # The validation merely validates the values against the schema and not any interdependencies(day-interval).
+    # If the user provides `day` when the `interval` is defined to be `daily`, or does not provide a `day` when the `interval` is 
+    # defined to be `weekly` then the schedule task is executed and the corresponding TL1 error is shown to the user.
+    interval: "weekly" # Supported values are 'daily' and 'weekly'. Not case sensitive.
+    day: "monday" # Supported values are 'monday', 'tuesday', 'wednesday', 'thursday', 'friday, 'saturday', and 'sunday'. Not case sensitive.
+    time: "01:00" # The values for time should be of the form HH:MM in the 24-hour clock format. Supported values are '0-23' for HH, '00/15/30/45' for MM
+##############################################################################################################################################

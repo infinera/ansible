@@ -1,0 +1,28 @@
+---
+
+- name: Unlocking the NTP servers
+  block:
+    - name: Validating state configurations prior to Unlocking
+      include_tasks: state_configuration_pre_validation.yml
+      
+    - name: Retrieving configurations prior to Unlocking
+      include_tasks: rtrv_ntp_config.yml
+
+    - name: Checking if the existing configuration is same as the given one
+      set_fact:
+        unlock_configs: "{{ lookup('template', 'unlock_idemp.j2') }}"
+
+    - name: The following NTP servers are going to be Unlocked
+      debug:
+        msg: "{{ unlock_configs }}"
+
+    - name: Unlocking the NTP servers
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'unlock_ntp.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: ntp_unlock_res
+      changed_when: ntp_unlock_res.status == 'SUCCESS' or ntp_unlock_res.status == 'PARTIAL'
+      failed_when: ntp_unlock_res.status == 'FAILURE'
+  when: state_configs is defined

@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- if is_https_enabled -%}
+    {%- set cmd = 'SET-ATTR-SECUDFLT:%s::CTAG:::HTTPS=FALSE;' | format(TID) -%}
+    {%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

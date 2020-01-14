@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for aid in eqpt_operation_mode_configs.node_to_aid_mapping[TID] -%}
+    {%- set cmd = "RTRV-EQPT:%s:%s:CTAG::%s;" | format(TID, aid, eqpt_operation_mode_configs.eqpt) -%}
+    {%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,30 @@
+---
+
+- name: Checking Software Download
+  block:
+    - name: Retrieving Software file Information
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'rtrv_FXFR.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: chk_sw_dw_res
+    - set_fact:
+        sw_xfr_status: "{{ lookup('template', 'check_download.j2') }}"
+
+    - name: Renaming Raw Response Parameters
+      infn_mapper:
+        mapper: "{{ sw_mapper }}"
+        tl1_response: "{{ chk_sw_dw_res }}"
+      register: mapped_chk_sw_dw_res
+      when:
+        - sw_mapper is defined
+
+    - name: Result of the retrieval
+      debug:
+        msg: "{%- if mapped_chk_sw_dw_res.skipped | default(false) -%}{{- chk_sw_dw_res -}}{%- else -%}{{- mapped_chk_sw_dw_res -}}{%- endif -%} "
+
+    - name: Failing in case the Software has not been downloaded , skipping the task otherwise
+      fail:
+        msg: "{{ 'Software Image Download was not successful. Reason:' + sw_xfr_status }}"
+      when: sw_xfr_status != "SUCCEEDED" | string

@@ -1,0 +1,16 @@
+---
+#This task is used only in full upgrade process 
+
+- name: Summary before Full Software Upgrade
+  block:
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: SW upgrade info 
+      debug:
+        msg: "This will upgrade from {{ current_sw_version }} to {{ sw_configs.download.sw_image_version }}"
+
+    - name: Update fact if Network element is already upgraded
+      set_fact:
+        node_already_upgraded: true
+      when: current_sw_version == sw_configs.download.sw_image_version

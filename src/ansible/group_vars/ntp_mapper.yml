@@ -1,0 +1,7 @@
+ntp_mapper:
+  ACTIVESTATE: is_active_source
+  NTPSTATUS: ntp_status
+  NTPADDR: ipaddress
+  PST: primary_state
+  PSTQ: primary_state_qualifier
+  SST: secondary_state

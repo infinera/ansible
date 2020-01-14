@@ -1,0 +1,21 @@
+{
+    "title": "Enable LC Configurations",
+    "description": "The schema for facility Enable LC configs",
+    "type": "object",
+    "properties": {
+        "node_to_aid_mapping": {
+            "patternProperties": {
+                "^.*$": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "node_to_aid_mapping"
+    ]
+}

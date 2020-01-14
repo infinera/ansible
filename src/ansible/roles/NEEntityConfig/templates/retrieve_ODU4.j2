@@ -1,0 +1,7 @@
+{%- set command_ip_map = {} -%}
+{%- for aid in enable_lc_configs.node_to_aid_mapping[TID] -%}
+    {%- set c_aid = aid[:-1] + 'T' + aid[-1] + '-1' -%}
+    {%- set cmd = "RTRV-%s:%s:%s:CTAG;" | format("ODU4" , TID, c_aid) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"facility" : "ODU4" }}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

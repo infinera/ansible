@@ -1,0 +1,24 @@
+---
+
+- name: Retrieving file transfer status
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'rtrv_FXFR.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: chk_db_bk_res
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ db_mapper }}"
+    tl1_response: "{{ chk_db_bk_res }}"
+  register: mapped_chk_db_bk_res
+  when:
+    - db_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_chk_db_bk_res.skipped | default(false) -%}{{- chk_db_bk_res -}}{%- else -%}{{- mapped_chk_db_bk_res -}}{%- endif -%} "
+
+- set_fact:
+    FXFR_status_updated : "{{ lookup('template', 'check_FXFR_status.j2') }}"

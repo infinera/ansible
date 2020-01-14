@@ -1,0 +1,17 @@
+{%- set command_ip_map = {} -%}
+{%- for certificate_id_pair in del_cert_configs -%}
+    {%- set cert_id = certificate_id_pair.certificate_identifier -%}
+    {%- if certificate_id_pair.node_to_certificate_identifier_mapping is defined -%}
+        {%- if certificate_id_pair.node_to_certificate_identifier_mapping[TID] is defined -%}
+           {%- set cert_id = certificate_id_pair.node_to_certificate_identifier_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+    {%- set shelf_id = node_controller_shelf_identifier -%}
+    {%- set aid = shelf_id | string + '-' + cert_id -%}
+    {%- if certificate_id_pair.certificate_type == "LOCAL" -%}
+        {%- set cert_type = "LOCALCERT" -%}
+    {%- endif -%}
+    {%- set cmd = 'DLT-CERT:%s:%s:%s::%s;' | format(TID, aid, loop.index, cert_type) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"certificate_identifier": cert_id, "certificate_type": certificate_id_pair.certificate_type, "shelf_identifier": shelf_id}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

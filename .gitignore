@@ -1,0 +1,9 @@
+*.retry
+*.pyc
+.idea/misc.xml
+.idea/modules.xml
+.idea/.gitignore
+.idea/vcs.xml
+.idea/net-automation.iml
+.idea/inspectionProfiles/profiles_settings.xml
+infn_tl1.txt

@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving System Information
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_system_information.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_sys_info_res
+  changed_when: false
+  failed_when: rtrv_sys_info_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ system_information_mapper }}"
+    tl1_response: "{{ rtrv_sys_info_res }}"
+  register: mapped_rtrv_res
+  when:
+    - system_information_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_sys_info_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%}"

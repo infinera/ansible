@@ -1,0 +1,27 @@
+{%- macro get_attr_str(attrname, attrval, is_ip=false) -%}
+    {%- if attrval == '' -%}
+        {{- '' -}}
+    {%- else -%}
+        {%- if is_ip -%}
+            {%- if attrval | ipv6 -%}
+                {{- attrname -}}={{- '\"' + attrval + '\"' -}}
+            {% else %}
+                {{- attrname -}}={{- attrval -}}
+            {%- endif -%}
+        {%- else -%}
+            {{- attrname -}}={{- attrval -}}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- set command_ip_map = {} -%}
+{%- for key, value in server_configs.items() -%}
+    {%- if value | length > 1 -%}
+        {%- set conf = [get_attr_str('RADIPADDR', value.ipaddress | default(''), true), get_attr_str('RADAUTHPORT', value.port | default('')), get_attr_str('RADARTMOUT', value.timeout | default('')), get_attr_str('RADSS', value.shared_secret_key | default('')), get_attr_str('MAXATMPTS', value.max_attempts | default(''))] -%}
+        {%- set conf_filtered = conf | select() | list -%}
+        {%- set conf_str = conf_filtered | join(',') -%}
+        {%- set cmd = "ED-RADIUS::%s:%s:::%s;" | format(value.identifier, loop.index, conf_str) -%}
+        {%- set dummy = command_ip_map.update({cmd: value}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

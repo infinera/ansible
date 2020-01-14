@@ -1,0 +1,11 @@
+{# Return true for configurations that are idempotent #}
+{%- set result_key = "RETRIEVE ODU4 FOR %s" -%}
+{%- set ret_val = {} -%}
+{%- for aid in enable_lc_configs.node_to_aid_mapping[TID] -%}
+    {%- set c_aid = aid[:-1] + 'T' + aid[-1] + '-1' -%}
+    {%- set fmt_res_key = result_key | format(c_aid) -%}
+    {%- if rtrv_odu4_res[fmt_res_key] is defined and rtrv_odu4_res[fmt_res_key].result is defined -%}
+        {%- set dummy = ret_val.update({aid: {"facility_monitoring_mode": rtrv_odu4_res[fmt_res_key].result[c_aid].Parameters.FACMONMD, "service_mode": rtrv_odu4_res[fmt_res_key].result[c_aid].Parameters.SM}}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- ret_val -}}

@@ -1,0 +1,34 @@
+---
+
+- name: Configuring Call Home server settings
+  block:
+    - name: Validating the call home configs
+      include_tasks: validate.yml
+
+
+    - name: Retrieving Call Home Settings
+      include_tasks: retrieve.yml
+
+    - name: Checking the input against the existing configurations
+      set_fact:
+        configs_to_apply: "{{ lookup('template', 'configure_idempotency.j2') }}"
+
+    - name: Creating Call Home Server Settings
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'create.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: create_ne_call_home_res
+      changed_when: create_ne_call_home_res.status == 'SUCCESS' or create_ne_call_home_res.status == 'PARTIAL'
+      failed_when: create_ne_call_home_res.status == 'FAILURE'
+
+    - name: Editing Call Home Server Settings
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'edit.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: edit_ne_call_home_res
+      changed_when: edit_ne_call_home_res.status == 'SUCCESS' or edit_ne_call_home_res.status == 'PARTIAL'
+      failed_when: edit_ne_call_home_res.status == 'FAILURE'

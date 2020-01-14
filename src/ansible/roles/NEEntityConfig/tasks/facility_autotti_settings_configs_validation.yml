@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (facility_autotti_settings_configs) is not defined
+  fail:
+    msg: "facility_autotti_settings_configs is not defined"
+  when: facility_autotti_settings_configs is not defined
+
+- name: Validating facility autotti settings configs
+  infn_cfg_validator:
+    what_is_being_validated: "Facility AUTOTTI Settings - facility_autotti_settings_configs"
+    configs: "{{ facility_autotti_settings_configs }}"
+    schema: "{{ lookup('file', 'facility_autotti_settings_configs_schema.json') | from_json | string }}"
+  register: facility_autotti_settings_configs_validation_res
+  changed_when: false
+  failed_when: not facility_autotti_settings_configs_validation_res.validated

@@ -1,0 +1,67 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to NE Call Home Settings Configurations. Please refer roles/ne_call_home/README.md
+# For input configurations please refer/edit group_vars/ne_call_home_config.yml
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ cfg_file | default('group_vars/ne_call_home_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/ne_call_home_mapper.yml') }}"
+  vars:
+     NE_IP: "{{ ne_ip|default (hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ne_user|default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd|default (hostvars[inventory_hostname]['ansible_password']) }}"
+     TID: "{{ tid | default(hostvars[inventory_hostname]['tid'] | default('')) }}"
+
+### End Copy ###
+
+  tasks:
+
+    # To Retrieve the Call Home Settings from the Network Element.
+    # In case there are no Call Home settings then there will be a message indicating it.
+    - import_role:
+        name: ne_call_home
+      vars:
+        task_name: retrieve
+      tags: retrieve
+
+    # To Create Call Home Settings with the given input if not present on the Network Element.
+    # To Edit existing Call Home Settings with the given input on the Network Element.
+    # Please refer/edit group_vars/ne_call_home_config.yml - configure
+    - import_role:
+        name: ne_call_home
+      vars:
+        task_name: configure
+      tags: configure
+
+    # To Delete the existing Call Home Settings on the Network Element.
+    # Task fails in case input contains identifiers to settings that don't exist.
+    # Please refer/edit group_vars/ne_call_home_config.yml - delete
+    - import_role:
+        name: ne_call_home
+      vars:
+        task_name: delete
+      tags: delete
+
+    # To invoke On demand Call Home.
+    # Please refer/edit group_vars/ne_call_home_config.yml - invoke
+    - import_role:
+        name: ne_call_home
+      vars:
+        task_name: invoke
+      tags: invoke
+
+    # To Validate the input against a JSON schema
+    # Please refer/edit group_vars/ne_call_home_config.yml
+    - import_role:
+        name: ne_call_home
+      vars:
+        task_name: validate
+      tags: validate
+

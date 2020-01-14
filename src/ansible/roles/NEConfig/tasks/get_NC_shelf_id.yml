@@ -1,0 +1,8 @@
+---
+
+- name: Retrieving System Information
+  include_tasks: retrieve_system_information.yml
+
+- name: Obtaining the Node Controller Shelf Identifier
+  set_fact:
+    node_controller_shelf_identifier: '{{ rtrv_sys_info_res["RETRIEVE SYS"].result["Component-0"].Parameters.NCSHELFID }}'

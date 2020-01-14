@@ -1,0 +1,5 @@
+{%- if rtrv_bkup_sched_res["RETRIEVE BKUPSCHED"].result | length > 1 -%}
+    {{- true -}}
+{%- else -%}
+    {{- false -}}
+{%- endif -%}

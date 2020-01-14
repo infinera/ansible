@@ -1,0 +1,8 @@
+{%- set command_ip_map = {} -%}
+{%- set status = chk_prep_sw_up_res["RETRIEVE SYS"].result["Component-0"].Parameters.UPGRADESTAT | upper -%}
+{%- set dummy = command_ip_map.update({'status': status }) -%}
+    {%- if status != "SUCCESS" -%}
+        {%- set dummy = command_ip_map.update({'status': 'FAILURE'}) -%}
+    {%- endif -%}
+{%- set dummy = command_ip_map.update({'APPLY': { 'InputParameters' : { 'image' : non_current_sw_version} ,  'result' : { 'prepare upgrade status' : status}, 'status': command_ip_map['status'] },  'status': command_ip_map['status'] }) -%}
+{{- command_ip_map -}}

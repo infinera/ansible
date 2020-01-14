@@ -1,0 +1,103 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to NTP Server Configurations. Please refer roles/iqnos_ntp/README.md
+# For input configurations please refer Or edit group_vars/iqnos_ntp_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files: 
+    - "{{ cfg_file | default('group_vars/iqnos_ntp_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/ntp_mapper.yml') }}"
+  vars:
+     NE_IP: "{{ ne_ip | default (hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd | default (hostvars[inventory_hostname]['ansible_password']) }}"
+
+### End Copy ###
+
+
+  tasks:
+  
+    # To Retrieve the NTP configurations from the Network Element.
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "rtrv_ntp_config"
+      tags: retrieve
+
+    # To Validate the given input configurations against a JSON schema
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - state_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "validate"
+      tags: validate
+
+    # To Unlock the given NTP servers on the Network Element
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - state_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "unlock_ntp"
+      tags: unlock
+    
+    # To Edit the NTP IP address of the NTP servers on the Network Element
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - server_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "edit_ntp_config"
+      tags: edit
+
+    # To Lock the given NTP servers on the Network Element
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - state_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "lock_ntp"
+      tags: lock
+
+    
+    # To Move the given NTP servers to the Maintenance on the Network Element
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - state_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "set_to_maintenance"
+      tags: set_to_maintenance
+
+    # To Remove the given NTP servers from Maintenance(to Unlocked state) on the Network Element 
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - state_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "remove_from_maintenance"
+      tags: remove_from_maintenance
+    
+     # To retrieve Alarm Reporting Status of NTP Servers
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "rtrv_alarm_reporting"
+      tags: retrieve_alarm_reporting
+      
+    # To Enable the alarm reporting for the given NTP servers on the Network Element       
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - alarm_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "enable_alarm_reporting"
+      tags: enable_alarm_reporting
+
+    # To Disable the alarm reporting for the given NTP servers on the Network Element  
+    # Please refer/edit group_vars/iqnos_ntp_config.yml - alarm_configs
+    - import_role:
+        name: iqnos_ntp
+      vars:
+        task_name: "disable_alarm_reporting"
+      tags: disable_alarm_reporting

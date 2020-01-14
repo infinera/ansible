@@ -1,0 +1,14 @@
+---
+
+- name: Validating the call home configs
+  include_tasks: validate.yml
+
+- name: Invoking On Demand Call Home Session
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'invoke.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: invoke_ne_call_home_res
+  changed_when: invoke_ne_call_home_res.status == "SUCCESS"
+  failed_when: invoke_ne_call_home_res.status == "FAILURE"

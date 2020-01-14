@@ -1,0 +1,32 @@
+---
+
+- name: Software Image Prepare For Upgrade 
+  block:
+   
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: Fail if SW image is not present for Upgrade, Skip the task otherwise
+      fail: 
+        msg: "SW Image not present for Upgrade"
+      when: non_current_sw_version == ''
+
+    - name: Initiating Preparation for Software Upgrade
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'prepare-upgrade.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: prep_sw_up_res
+      changed_when: prep_sw_up_res.status == 'SUCCESS'
+      failed_when: prep_sw_up_res.status == 'FAILURE'
+
+    - name: "Pausing for {{ sw_configs.prepare_wait_time | default(prepare_wait_time) }} minute"
+      pause:
+        minutes: "{{ sw_configs.prepare_wait_time | default(prepare_wait_time) }}"
+
+    - name: Checking if the Network Element is reachable
+      include_tasks: availability.yml
+
+    - name: Checking if upgrade preparation is successful
+      include_tasks: check_prepare.yml

@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- set ftp = db_configs.backup.primary_ftp_server -%}
+{%- set ftp_path = db_configs.backup.primary_path -%}
+{%- set cmd = "ED-FXFR:%s::TAG1:::FTPFILETYPE=RFBU,PRIFTPIP=%s,PRIFTPUID=%s,PRIFTPPID=%s,PRIDSTFILENAME=DB_%s,PRIDSTFILEPATH=%s/;"| format(TID,ftp.ipaddress,ftp.username,ftp.password,'%D_%M',ftp_path) -%}
+{%- set dummy = command_ip_map.update({cmd: ftp}) -%}
+{{- command_ip_map -}}

@@ -1,0 +1,19 @@
+{%- set ret_val = {} -%}
+{%- set state_chg_key = "EDIT EQUIPMENT FOR %s" -%}
+{%- for aid in eqpt_operation_mode_configs.node_to_aid_mapping[TID] -%}
+    {%- if aid in eqpt_check["Non_1-100GX_AIDs"] | list -%}
+        {%- set dummy = ret_val.update({aid: {"msg": "Cannot Change the Operation Mode of Non 1-100GX TIM", "status": "FAILURE"}}) -%}
+    {%- elif aid in oprmode_configs.node_to_aid_mapping[TID] -%}
+        {%- set fmt_state_chg_key = "EDIT EQUIPMENT FOR %s" | format(aid) -%}
+        {%- if edit_eqpt_service_state_res[fmt_state_chg_key] is defined -%}
+            {%- if edit_eqpt_service_state_res[fmt_state_chg_key].status == "SUCCESS" -%}
+                {%- set dummy = ret_val.update({aid: {"msg": "Change of operation mode to %s is successful" | format(oprmode_configs.mode), "status": "SUCCESS"}}) -%}
+            {%- else -%}
+                {%- set dummy = ret_val.update({aid: {"msg": "Change in Operation Mode not successful", "status": "FAILURE"}}) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set dummy = ret_val.update({aid: {"status": "NO OPERATIONS NEED TO BE PERFORMED AS SYSTEM IS ALREADY CONFIGURED WITH INTENDED INPUT"}}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- ret_val -}}

@@ -1,0 +1,14 @@
+{%- set db_info = rtrv_db_img_res["RETRIEVE RFILE"].result -%}
+{%- set backup_names = [] -%}
+{%- for key, value in db_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE == "Backup" -%}
+            {{- backup_names.append(value.Parameters.FILE) -}}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- if (backup_names | length == 1) -%}
+    {{- backup_names[0] | string -}}
+{%- else -%}
+    {{- backup_names | list -}}
+{%- endif -%}

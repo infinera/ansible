@@ -1,0 +1,17 @@
+{%- macro chk_for_idmp() -%}
+    {%- set rtrv_res_ = rtrv_res["RETRIEVE NTP"].result -%}
+    {%- set result = [] -%}
+    {%- for identifier in state_configs.identifiers -%}
+        {%- set primary_state_qualifier = rtrv_res_[identifier | upper].Parameters.PSTQ | default('') -%}
+        {%- set secondary_state = rtrv_res_[identifier | upper].Parameters.SST | default('') -%}
+        {%- if primary_state_qualifier != "AUMA" and primary_state_qualifier != "MA" -%}
+            {{- result.append(identifier) -}}
+        {%- endif -%}
+        {%- if "MT" in secondary_state -%}
+            {{- result.append(identifier) -}}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- set dummy = state_configs.update({"identifiers": result}) -%}
+    {{- state_configs -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

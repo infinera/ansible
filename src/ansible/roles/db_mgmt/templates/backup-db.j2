@@ -1,0 +1,22 @@
+{%- set command_ip_map = {} -%}
+{%- set file_name = 'DB_%s'| format (db_configs.backup.run_id)+ '_%M' -%}
+    {%- if db_configs.backup.file_mapping is defined -%}
+        {%- if db_configs.backup.file_mapping[TID] is defined -%}
+            {%- set file_name = db_configs.backup.file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+
+{%- set primecmd = 'COPY-RFILE:%s::%s:::TYPE=RFBU,DST="ftp://%s:%s@%s/%s/%s"'| format(TID,range(1, 500) | random ,db_configs.backup.primary_ftp_server.username,db_configs.backup.primary_ftp_server.password,db_configs.backup.primary_ftp_server.ipaddress,db_configs.backup.primary_path, file_name) -%}
+    {%- if db_configs.backup.secondary_ftp_server is defined -%}
+        {%- set secondcmd = ',DST2="ftp://%s:%s@%s/%s/%s"'| format(db_configs.backup.secondary_ftp_server.username,db_configs.backup.secondary_ftp_server.password,db_configs.backup.secondary_ftp_server.ipaddress,db_configs.backup.secondary_path, file_name) -%}
+        {%- set primecmd = primecmd + secondcmd -%}
+    {%- endif -%}
+    {%- if db_configs.backup.overwrite is defined -%}
+        {%- if db_configs.backup.overwrite == true -%}
+            {%- set ovwrtcmd = ',OVWRT=YES' -%}
+            {%- set primecmd = primecmd + ovwrtcmd -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set cmd = primecmd + ';'-%}
+{%- set dummy = command_ip_map.update({cmd: db_configs.backup}) -%}
+{{- command_ip_map -}}

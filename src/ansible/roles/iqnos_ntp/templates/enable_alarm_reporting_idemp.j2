@@ -1,0 +1,13 @@
+{%- macro chk_for_idmp() -%}   
+    {%- set result = [] -%}
+    {%- for identifier in alarm_configs.identifiers -%}
+        {%- set rtrv_arc_res_ = rtrv_arc_res["RETRIEVE ARC NTP FOR " + identifier].result.RawResponse -%}
+        {%- set arc_status = rtrv_arc_res_ |  regex_search(identifier | upper +'(,NTP:IND)') -%}
+        {%- if arc_status is not none and "IND" in arc_status -%}
+            {{- result.append(identifier) -}}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- set dummy = alarm_configs.update({"identifiers": result}) -%}
+    {{- alarm_configs -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

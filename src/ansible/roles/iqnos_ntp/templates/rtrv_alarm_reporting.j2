@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in alarm_configs.identifiers -%}
+    {%- set cmd = "RTRV-ARC-NTP::%s:%s::;" | format(identifier, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving {{ facility_autotti_settings_configs.facility }}
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_facility.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_fac_res
+  changed_when: false
+  failed_when: rtrv_fac_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ facility_mapper[facility_autotti_settings_configs.facility] }}"
+    tl1_response: "{{ rtrv_fac_res }}"
+  register: mapped_rtrv_fac_res
+  when:
+    - facility_mapper[facility_autotti_settings_configs.facility] is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_fac_res.skipped | default(false) -%}{{- rtrv_fac_res -}}{%- else -%}{{- mapped_rtrv_fac_res -}}{%- endif -%} "

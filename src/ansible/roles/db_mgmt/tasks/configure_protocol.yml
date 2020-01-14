@@ -1,0 +1,40 @@
+---
+
+- name: Validating the Database configs
+  include_tasks: db_configs_validation.yml
+  
+- name: Retrieving the existing transfer protocol
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_security_attributes.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: existing_protocol_res
+  failed_when: existing_protocol_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ db_mapper }}"
+    tl1_response: "{{ existing_protocol_res }}"
+  register: mapped_existing_protocol_res
+  when:
+    - db_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_existing_protocol_res.skipped | default(false) -%}{{- existing_protocol_res -}}{%- else -%}{{- mapped_existing_protocol_res -}}{%- endif -%} "
+
+- name: Checking if existing transfer protocol is same as the input
+  set_fact:
+    need_to_cfg_proto: "{{ lookup('template', 'configure_protocol_idempotency.j2') | bool }}"
+
+- name: Configuring file transfer protocol , skipping the task if already configured
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'configure_protocol.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: prto_cfg_res
+  changed_when: prto_cfg_res.status == 'SUCCESS'
+  failed_when: prto_cfg_res.status == 'FAILURE'
+  when: need_to_cfg_proto | bool

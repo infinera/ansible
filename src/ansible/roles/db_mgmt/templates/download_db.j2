@@ -1,0 +1,10 @@
+{%- set command_ip_map = {} -%}
+{%- set file_name = 'DB_%s_%s'| format (db_configs.restore.run_id,TID) -%}
+    {%- if db_configs.restore.file_mapping is defined -%}
+        {%- if db_configs.restore.file_mapping[TID] is defined -%}
+            {%- set file_name = db_configs.restore.file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set cmd = 'COPY-RFILE:%s::%s:::TYPE=RFR,SRC="ftp://%s:%s@%s/%s/%s";'| format(TID,range(1, 500) | random ,db_configs.restore.primary_ftp_server.username,db_configs.restore.primary_ftp_server.password,db_configs.restore.primary_ftp_server.ipaddress,db_configs.restore.primary_path,file_name) -%}
+{%- set dummy = command_ip_map.update({cmd: db_configs.restore}) -%}
+{{- command_ip_map -}}

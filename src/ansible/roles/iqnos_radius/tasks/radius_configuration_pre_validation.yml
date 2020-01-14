@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (server_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "server_configs is not defined" 
+  when: server_configs is not defined
+
+- name: Validating the RADIUS server configs
+  infn_cfg_validator:
+    what_is_being_validated: "RADIUS Server Configurations - server_configs"
+    configs: "{{ server_configs }}"
+    schema: "{{ lookup('file', 'radius_config_schema.json') |  from_json | string }}"
+  register: rad_cfg_validation_res
+  changed_when: false
+  failed_when: not rad_cfg_validation_res.validated

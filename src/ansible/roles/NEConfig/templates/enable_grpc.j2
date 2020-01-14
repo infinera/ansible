@@ -1,0 +1,5 @@
+{%- set command_ip_map = {} -%}
+{%- if not (is_grpc_enabled | bool) -%}
+    {%- set dummy = command_ip_map.update({'ED-SYS:::CTAG:::GRPC=ENABLE;': {"gRPC": "ENABLE"}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

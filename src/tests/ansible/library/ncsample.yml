@@ -1,0 +1,25 @@
+---
+- hosts: netconf_ne
+  connection: local
+  vars:
+    ncconf:
+      host: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+      username: "{{ hostvars[inventory_hostname]['ansible_user'] }}"
+      password: "{{ hostvars[inventory_hostname]['ansible_password'] }}"
+  tasks:
+    - name: Get-Config Users - Using Container,List
+      infn_netconf:
+        provider: "{{ ncconf }}"
+        commands:
+          operation: 'get-config'
+          namespace: 'com:infinera:security:user'
+          container: 'users'
+          nclist: 'user'
+        save: "logs_netconf/log_{{ hostvars[inventory_hostname]['ansible_host'] }}.txt"
+    - name: Get-Config Users - Using XML
+      infn_netconf:
+        provider: "{{ ncconf }}"
+        commands:
+          operation: 'get-config'
+          xmlstr: '<users xmlns="com:infinera:security:user"/>'
+        save: "logs_netconf/log_{{ hostvars[inventory_hostname]['ansible_host'] }}.txt"

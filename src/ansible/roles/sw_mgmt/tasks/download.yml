@@ -1,0 +1,39 @@
+---
+
+- name: Software Image Download
+  block:
+    - name: Validating the Software configs
+      include_tasks: sw_configs_validation.yml
+
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: Software Download 
+      block:
+        - name: Configuring Transfer Protocol
+          include_tasks: configure_protocol.yml
+
+        - name: Initiating Software Download
+          infn_tl1:
+            provider: "{{ tl1 }}"
+            commands_and_inputs: "{{ lookup('template', 'download-sw.j2') }}"
+            output: "json"
+            save: "{{ module_save_file | default('infn_tl1') }}.txt"
+          register: sw_img_down_res
+          changed_when: sw_img_down_res.status == 'SUCCESS'
+          failed_when: sw_img_down_res.status == 'FAILURE'
+        
+        - name: Pausing for "{{ sw_configs.download.wait_time | default(download_wait_time) }}" minute(s)
+          pause:
+            minutes: "{{ sw_configs.download.wait_time | default(download_wait_time) }}"
+          when: sw_img_down_res.status == 'SUCCESS'
+
+        - name: Checking if Software Download is successful
+          include_tasks: check_download.yml
+          when: sw_img_down_res.status == 'SUCCESS'
+
+      when: current_sw_version != sw_configs.download.sw_image_version and non_current_sw_version != sw_configs.download.sw_image_version 
+
+    - name: Summary of SW Download
+      debug :
+        msg: "{% if sw_img_down_res.status is defined  %}{{ sw_img_down_res }}{% else %}{{'Image already present'}}{% endif %}"

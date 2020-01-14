@@ -1,0 +1,20 @@
+acf_mapper:
+  LABEL: filter_label
+  INTF: interface
+  PROTOCOL: protocol
+  SRCIP: source_address
+  SIPPREFIXLEN: source_prefix_length
+  DSTIP: dest_address
+  DIPPREFIXLEN: dest_prefix_length
+  SRCPORT: source_port
+  SRCPORTRANGE: source_port_range
+  DSTPORT: dest_port
+  DSTPORTRANGE: dest_port_range
+  DIRN: direction
+  OPERN: operation
+  SEQUENCE: sequence
+  INFLIST: configured_interfacelist
+  IP6INFLIST: configured_ipv6_interfacelist
+  PST: primary_service_state
+  PSTQ: primary_service_state_qualifier
+  SST: secondary_service_state

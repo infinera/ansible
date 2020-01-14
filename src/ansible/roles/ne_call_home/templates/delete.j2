@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for delete_aid in configs_to_delete -%}
+    {%- set cmd = "dlt-netcONFCALLHOME::%s:%s::::;" | format(delete_aid,loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"aid": delete_aid}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

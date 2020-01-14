@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- if not (is_trib_cfg_idempotent | bool) -%}
+    {%- set cmd = "ED-DEFTEMP-TRIB:%s::CTAG:::SVCTYPE=%s,DISABLEACT=LASEROFF;" | format(TID, default_template_configs.trib.service_type) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"service_type": "10GBE_LAN", "disable_action": "LASEROFF"}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

@@ -1,0 +1,4 @@
+{%- set command_ip_map = {} -%}
+{%- set cmd = 'CPY-MEM:%s::CTAG::;' | format(TID) -%}
+{%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{{- command_ip_map -}}

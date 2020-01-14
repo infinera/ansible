@@ -1,0 +1,17 @@
+---
+- hosts: cli_ne
+  connection: local
+  vars:
+    cli:
+      host: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+      username: "{{ hostvars[inventory_hostname]['ansible_user'] }}"
+      password: "{{ hostvars[inventory_hostname]['ansible_password'] }}"
+  tasks:
+    - name: Check Alarms and Equipment
+      infn_cli:
+        provider: "{{ cli }}"
+        commands:
+        - config;;do show running-config security profile PROFILE
+        - config;;do show running-config aaa tacacs 1
+        - enable;;show running-config security profile PROFILE
+        save: "logs_cli/log_{{ hostvars[inventory_hostname]['ansible_host'] }}.txt"

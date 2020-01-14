@@ -1,0 +1,7 @@
+---
+# vars file for iqnos_radius
+
+tl1:
+  host: "{{NE_IP}}"
+  username: "{{NE_User}}"
+  password: "{{NE_Pwd}}"

@@ -1,0 +1,14 @@
+---
+
+- name: Validating the Database configs
+  include_tasks: db_configs_validation.yml
+
+- name: Configuring simultaneous Transfer 
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'configure_simultaneous.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: configure_simultaneous_res
+  changed_when: configure_simultaneous_res.status == 'SUCCESS'
+  failed_when: configure_simultaneous_res.status == 'FAILURE'

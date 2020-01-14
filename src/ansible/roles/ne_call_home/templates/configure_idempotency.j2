@@ -1,0 +1,32 @@
+{%- set ret_val = {} -%}
+{%- set to_edit = [] -%}
+{%- set to_create = [] -%}
+{%- set retrieval_result = rtrv_ne_call_home_res["RETRIEVE NETCONFCALLHOME"].result -%}
+{%- set retrieval_keys = retrieval_result.keys() -%}
+{%- for config in ne_call_home_configs.configure -%}
+  {%- if config.identifier in retrieval_keys -%}
+    {%- set to_edit_temp = {"identifier": config.identifier} -%}
+    {%- if config.dest_address | default(retrieval_result[config.identifier].Parameters.DSTADDR) | string != retrieval_result[config.identifier].Parameters.DSTADDR -%}
+      {%- set dummy = to_edit_temp.update({"dest_address": config.dest_address}) -%}
+    {%- endif -%}
+    {%- if config.dest_port | default(retrieval_result[config.identifier].Parameters.DSTPORT) | string != retrieval_result[config.identifier].Parameters.DSTPORT -%}
+      {%- set dummy = to_edit_temp.update({"dest_port": config.dest_port}) -%}
+    {%- endif -%}
+    {%- if config.retry_count | default(retrieval_result[config.identifier].Parameters.RETRYCOUNT) | string != retrieval_result[config.identifier].Parameters.RETRYCOUNT -%}
+      {%- set dummy = to_edit_temp.update({"retry_count": config.retry_count}) -%}
+    {%- endif -%}
+    {%- if config.timeout | default(retrieval_result[config.identifier].Parameters.TIMEOUT) | string != retrieval_result[config.identifier].Parameters.TIMEOUT -%}
+      {%- set dummy = to_edit_temp.update({"timeout": config.timeout}) -%}
+    {%- endif -%}
+    {%- if config.protocol | default(retrieval_result[config.identifier].Parameters.TRANSPROTOCOL) | string != retrieval_result[config.identifier].Parameters.TRANSPROTOCOL -%}
+      {%- set dummy = to_edit_temp.update({"protocol": config.protocol}) -%}
+    {%- endif -%}
+    {%- if to_edit_temp | length > 1 -%}
+      {%- set dummy = to_edit.append(to_edit_temp) -%}
+    {%- endif -%}
+  {%- else -%}
+    {%- set dummy = to_create.append(config) -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- set dummy = ret_val.update({"to_edit": to_edit, "to_create": to_create}) -%}
+{{- ret_val -}}

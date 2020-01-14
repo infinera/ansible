@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for invoke_aid in ne_call_home_configs.invoke -%}
+    {%- set cmd = "OPR-INIT-NETCONFCALLHOME:%s:%s:%s::;" | format(TID, invoke_aid, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"aid": invoke_aid}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,25 @@
+# Requires ansible 1.8+
+- hosts: "{{ host_group }}"
+  serial: "{{ batch_size | default(3) }}" # 3 Nodes are managed by default at a time
+  connection: local
+  gather_facts: False
+  vars:
+    NE_IP: "{{ ne_ip|default (hostvars[inventory_hostname]['ansible_host']) }}"
+    NE_User: "{{ne_user|default(hostvars[inventory_hostname]['ansible_user']) }}"
+    NE_Pwd: "{{ ne_pwd|default (hostvars[inventory_hostname]['ansible_password']) }}"
+    TID: "{{ hostvars[inventory_hostname]['tid']| default('') }}"
+  
+  tasks:
+  
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: "cleanup_all"
+      tags: cleanup_all
+
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: "cleanup"        
+      tags: cleanup
+

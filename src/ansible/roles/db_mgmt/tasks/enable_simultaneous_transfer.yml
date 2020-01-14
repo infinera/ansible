@@ -1,0 +1,18 @@
+---
+
+- name: Retrieving file transfer settings
+  include_tasks: retrieve_ftp_information.yml
+
+- name: Checking if simultaneous transfer is set
+  set_fact:
+    is_simul_transfer_enabled: "{{ lookup('template', 'is_simultaneous_transfer_enabled.j2') }}"
+
+- name: Enabling Simultaneous Transfer
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'enable_simultaneous_transfer.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: enable_simul_transfer_res
+  changed_when: enable_simul_transfer_res.status == 'SUCCESS'
+  failed_when: enable_simul_transfer_res.status == 'FAILURE'

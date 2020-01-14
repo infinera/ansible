@@ -1,0 +1,11 @@
+---
+
+- name: Clearing the Access Control Filters' counters
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'clear.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: clear_acf_res
+  changed_when: clear_acf_res.status == 'SUCCESS'
+  failed_when: clear_acf_res.status == 'FAILURE'

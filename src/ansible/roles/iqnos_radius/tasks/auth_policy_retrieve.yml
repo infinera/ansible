@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving the existing Authentication Policy
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'auth_policy_retrieve.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: auth_rtrv_res
+  changed_when: false
+  failed_when: auth_rtrv_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ radius_mapper.auth_policy }}"
+    tl1_response: "{{ auth_rtrv_res }}"
+  register: mapped_auth_rtrv_res
+  when:
+    - radius_mapper is defined
+
+- name: Existing RADIUS Authentication Policy
+  debug:
+    msg: "{%- if mapped_auth_rtrv_res.skipped | default(false) -%}{{- auth_rtrv_res -}}{%- else -%}{{- mapped_auth_rtrv_res -}}{%- endif -%} "

@@ -1,0 +1,31 @@
+
+{%- if db_configs.schedule.interval | lower == "daily" -%}
+    {%- set interval = "1-DAY" -%}
+{%- elif db_configs.schedule.interval | lower == "weekly" -%}
+    {%- set interval = "7-DAY" -%}
+{%- endif -%}
+{%- if db_configs.schedule.day is defined -%}
+    {%- if db_configs.schedule.day | lower == "sunday" -%}
+        {%- set day = 0 -%}
+    {%- elif db_configs.schedule.day | lower == "monday" -%}
+        {%- set day = 1 -%}
+    {%- elif db_configs.schedule.day | lower == "tuesday" -%}
+        {%- set day = 2 -%}
+    {%- elif db_configs.schedule.day | lower == "wednesday" -%}
+        {%- set day = 3 -%}
+    {%- elif db_configs.schedule.day | lower == "thursday" -%}
+        {%- set day = 4 -%}
+    {%- elif db_configs.schedule.day | lower == "friday" -%}
+        {%- set day = 5 -%}
+    {%- elif db_configs.schedule.day | lower == "saturday" -%}
+        {%- set day = 6 -%}
+    {%- endif -%}
+{%- else -%}
+    {%- set day = '' -%}
+{%- endif -%}
+{%- set time = db_configs.schedule.time | replace(':', '-') -%}
+
+{%- set command_ip_map = {} -%}
+{%- set cmd = 'SCHED-BKUP:%s::TAG2::::%s,%s,%s;'| format(TID,interval,day,time) -%}
+{%- set dummy = command_ip_map.update({cmd: db_configs.schedule}) -%}
+{{- command_ip_map -}}

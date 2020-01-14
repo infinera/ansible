@@ -1,0 +1,25 @@
+---
+
+- name: Retrive Controller Cards 
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'rtrv_stby.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_stby_res
+  failed_when: rtrv_stby_res.status == 'FAILURE'
+
+- name: Get number of controller cards
+  set_fact: 
+    no_of_cards : '{{ rtrv_stby_res["RETRIEVE EQUIPMENT"].result | length -1 }}'
+  
+- name: UnLock Standby Card , if present else skip the task
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'unlock_stby.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: unlock_stby_res
+  changed_when: unlock_stby_res.status == 'SUCCESS'
+  failed_when: unlock_stby_res.status == 'FAILURE'
+  when: no_of_cards != 1

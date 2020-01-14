@@ -1,0 +1,60 @@
+---
+
+##############################################################################################################################################################################
+#Using Access control Filters feature -
+#Secure the interfaces on the NE and run restrict inbound IP access to a Infinera NE, protecting it from access by hosts that don't have permission
+#Specify which hosts or groups of hosts can access and manage a Infinera NE by IP address, simplifying operations.
+#Gather statistics on the allowed application ports and IP addresses
+##############################################################################################################################################################################
+#######################################Config variables ######################################################################################################################
+# name - Indicates the name of the ACF. Specify a unique name for the ACF. Maximum characters supported is 30
+# label - Label for the ACF rule
+# protocol - Indicates which protocol the ACF will be applied to. 
+#            Set the value to one of the following: tcp|udp|icmp|all
+# operation - Indicates the action taken by the ACF. 
+#             Set the value to one of the following:ACCEPT,DROP,REJECT,LOG
+# interface - Indicates the interface this ACF shall be applied to.
+#             Set the value to one of the following: dcn|aux|igcc|osc|all
+# sequence - Indicates the priority of the ACF rule. Sequence is specified in multiples of 100 starting from 200. 200 means highest priority. ACF rules on a node need to have unique sequence number.
+# direction - Based on this value, the ACF will be applied to Incoming, outgoing or forwarded packets. 
+#             Set the value to one of the following:INPUT,OUTPUT
+# source_address - Indicates the Source IP that this ACF will filter. IPv4 and IPv6 addresses are supported. IPv6 check-box needs to be checked to specify an IPv6 address
+# source_prefix_length - Indicates the SIP Prefix length.
+# source_port - Indicates the Source Port
+# source_port_range - This parameter specifies the range starting with the Source port. A value of 0 indicates no range.
+# dest_address - Indicates the Destination IP that this ACF will filter. IPv4 and IPv6 addresses are supported. IPv6 check-box needs to be checked to specify an IPv6 address.
+# dest_prefix_length - Indicates the DIP Prefix length.
+# dest_port - Indicates the Destination Port
+# dest_port_range - This parameter specifies the range starting with the Destination port. A value of 0 indicates no range.
+
+acf_configs:
+  create:
+    - name                 : Log aux
+      label                : Logging aux incoming traffic
+      protocol             : tcp
+      operation            : log
+      interface            : aux
+      sequence             : 3800
+      direction            : input
+
+    # - name                 : Reject gcc
+    #   label                : Rejecting the gcc incoming traffic
+    #   protocol             : tcp
+    #   operation            : reject
+    #   interface            : gcc
+    #   sequence             : 300
+    #   direction            : input
+
+    # - name                 : Accept igcc
+    #   label                : Accepting igcc incoming traffic
+    #   protocol             : udp
+    #   operation            : accept
+    #   interface            : igcc
+    #   sequence             : 400
+    #   direction            : input
+  
+  
+  # Names of the ACF objects givein whilecreating ACF
+  delete:
+    - Log aux
+   

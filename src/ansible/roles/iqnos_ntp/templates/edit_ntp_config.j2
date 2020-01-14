@@ -1,0 +1,15 @@
+{%- set command_ip_map = {} -%}
+{%- for key, value in server_configs.iteritems() -%}
+    {%- if value | length > 1 -%}
+        {%- if value.ipaddress is undefined -%}
+            {%- set ipaddr_val = '' -%}
+            {%- set ipaddr_val_ = '' -%}
+        {%- else -%}
+            {%- set ipaddr_val = value.ipaddress if (value.ipaddress | ipv4) else '\"' + value.ipaddress + '\"' -%}
+            {%- set ipaddr_val_ = value.ipaddress -%}
+        {%- endif -%}
+        {%- set cmd = "ED-NTP::%s:%s:::NTPADDR=%s:;" | format(value.identifier, loop.index, ipaddr_val) -%}
+        {%- set dummy = command_ip_map.update({cmd: {"ipaddress": ipaddr_val_}}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

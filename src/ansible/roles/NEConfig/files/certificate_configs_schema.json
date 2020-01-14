@@ -1,0 +1,135 @@
+{
+    "title": "Kerberos X.509 Certificate configurations",
+    "description": "The schema for the X.509 certificate_configs",
+    "type": "object",
+    "properties": {
+        "delete": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/KerberosCertIdentifierPair"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "configure": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/KerberosCertConfiguration"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "tls_certificate": {
+            "description": "TLS certificate identifier required for enabling HTTPS",
+            "type": "object",
+            "properties": {
+                "certificate_identifier": {
+                    "description": "The identifier for the certificate",
+                    "type": "string"
+                },
+                "idle_time": {
+                    "description": "Specifies the time (in seconds), until which the TLS session can be inactive.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 600
+                },
+                "connection_time": {
+                    "description": "Specifies the time (in seconds), until which the TLS session can be active. If a value of zero is configured, the TLS session will never time out.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 172800
+                },
+                "node_to_certificate_identifier_mapping": {
+                    "type": "object",
+                    "$ref": "#/definitions/NodeToCertIdentifierMap"
+                }    
+            },
+            "additionalProperties": false,
+            "required": [
+                "certificate_identifier"
+            ]
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "NodeToCertIdentifierMap": {
+            "description": "The TID to certificate identifier mapping",
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {
+                    "type": "string"
+                }
+            }
+        },
+        "KerberosCertIdentifierPair": {
+            "description": "The certificate identifier and the type of certificate",
+            "type": "object",
+            "properties": {
+                "certificate_identifier": {
+                    "description": "Unique Certificate Authority assigned ID",
+                    "type": "string"
+                },
+                "certificate_type": {
+                    "description": "The type of the certificate",
+                    "type": "string",
+                    "pattern": "(?i)^(LOCAL)$"
+                },
+                "node_to_certificate_identifier_mapping": {
+                    "type": "object",
+                    "$ref": "#/definitions/NodeToCertIdentifierMap"
+                }
+            },
+            "required": [
+                "certificate_identifier",
+                "certificate_type"
+            ],
+            "additionalProperties": false
+        },
+        "KerberosCertConfiguration": {
+            "description": "The certificate number and the type of certificate",
+            "type": "object",
+            "properties": {
+                "certificate_identifier": {
+                    "description": "Unique Certificate Authority assigned ID",
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "certificate_type": {
+                    "description": "Type of the certificate",
+                    "type": "string",
+                    "pattern": "(?i)^(LOCAL)$"
+                },
+                "label": {
+                    "description": "Label for the certificate",
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "pass_phrase": {
+                    "description": "Passphrase for the certificate(applicable to LOCAL ones)",
+                    "type": "string"
+                },
+                "server": {
+                    "description": "FTP Server details",
+                    "type": "object"
+                },
+                "path_to_file": {
+                    "description": "Path to the certificate",
+                    "type": "string"
+                },
+                "node_to_certificate_identifier_mapping": {
+                    "type": "object",
+                    "$ref": "#/definitions/NodeToCertIdentifierMap"
+                }
+            },
+            "required": [
+                "certificate_identifier",
+                "certificate_type",
+                "server",
+                "path_to_file"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

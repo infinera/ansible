@@ -1,0 +1,5 @@
+{%- set command_ip_map = {} -%}
+{%- set sd = sw_configs.download -%}
+{%- set cmd = 'COPY-RFILE:%s::CTAG:::TYPE=SWDL,SRC="ftp://%s:%s@%s/%s/%s.%s";' | format(TID, sd.ftp_server.username, sd.ftp_server.password, sd.ftp_server.ipaddress, sd.path,sd.sw_image_version,sd.arch) -%}
+{%- set dummy = command_ip_map.update({cmd: {"username": sd.ftp_server.username, "password": "*****", "ipaddress": sd.ftp_server.ipaddress, "path": sd.path,"sw_image_version":sd.sw_image_version}}) -%}
+{{- command_ip_map -}}

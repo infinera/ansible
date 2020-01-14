@@ -1,0 +1,18 @@
+{%- set command_ip_map = {} -%}
+
+{%- set file_name = 'DB_%s_%s'| format (db_configs.cleanup.run_id,TID) -%}
+{%- if db_configs.cleanup.file_mapping[TID] is defined -%}
+    {%- set file_name = db_configs.cleanup.file_mapping[TID] -%}
+{%- endif -%}
+
+
+{%- set db_info = rtrv_db_img_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in db_info.items() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.FILE == file_name -%}
+            {%- set cmd = 'DLT-RFILE:%s::%s:::FILE="file:///%s",TYPE=DB;' | format(TID, loop.index, value.Parameters.FILE) -%}
+            {%- set dummy = command_ip_map.update({cmd: {"db_image_name": value.Parameters.FILE}}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

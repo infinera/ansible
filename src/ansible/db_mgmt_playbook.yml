@@ -1,0 +1,112 @@
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to DB Mgmt.. Please refer roles/db_mgmt/README.md
+# For input configurations please refer Or edit group_vars/db_mgmt_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+- hosts: "{{ host_group }}"
+  serial: "{{ batch_size | default(3) }}"
+  connection: local
+  gather_facts: False
+  
+  vars_files: 
+    - "{{ cfg_file | default('group_vars/db_mgmt_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/db_mgmt_mapper.yml') }}"
+    - "{{ ftp_file | default('group_vars/ftp_server.yml') }}"
+
+  vars:
+    NE_IP: "{{ ne_ip | default(hostvars[inventory_hostname]['ansible_host']) }}"
+    NE_User: "{{ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+    NE_Pwd: "{{ ne_pwd | default(hostvars[inventory_hostname]['ansible_password']) }}"
+    TID: "{{ hostvars[inventory_hostname]['tid']| default('') }}"
+
+### End Copy ###
+
+  tasks:
+
+    # To Retrieve Database Images
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: retrieve_database_images
+      tags: retrieve
+    
+    # To Cleanup DB image
+    # Please refer/edit group_vars/db_mgmt_config.yml - cleanup section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: cleanup
+      tags: cleanup
+
+    # To Cleanup all existing DB images
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: cleanup_all
+      tags: cleanup_all
+
+    # To Backup the DB image locally in NE 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: backup_local
+      tags: backup_local
+
+    # To Backup the DB image on an FTP/SFTP server
+    # Please refer/edit group_vars/db_mgmt_config.yml - backup section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: backup
+      tags: backup
+
+    # To Restore the DB image from an FTP/SFTP server
+    # Please refer/edit group_vars/db_mgmt_config.yml - restore section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: restore
+      tags: restore
+
+    # To Restore local DB image 
+    # Please refer/edit group_vars/db_mgmt_config.yml - restore_local section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: restore_local
+      tags: restore_local
+
+    # To Schedule Backup of DB on an FTP server
+    # Please refer/edit group_vars/db_mgmt_config.yml - schedule section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: "schedule_backup"        
+      tags: schedule_backup
+    
+    # To UnSchedule Backup of DB on an FTP server
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: "unschedule_backup"        
+      tags: unschedule_backup
+
+    # To Retrieve Schedule Information of Backup of DB
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: "retrieve_backup_schedule"        
+      tags: retrieve_schedule
+    
+    # To Download DB image to NE from an FTP server
+    # Please refer/edit group_vars/db_mgmt_config.yml - restore section 
+    - import_role:
+        name: db_mgmt
+      vars:
+        task_name: "download"        
+      tags: download  
+    
+    

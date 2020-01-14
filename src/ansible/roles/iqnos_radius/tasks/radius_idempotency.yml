@@ -1,0 +1,10 @@
+---
+
+- name: Idempotency Test - RADIUS Servers
+  block:
+    - name: Retrieving the RADIUS servers' details
+      include_tasks: radius_retrieve.yml
+
+    - name: Checking if the existing server configuration is same as the given one
+      set_fact:
+        server_configs: "{{ lookup('template', 'radius_idempotency.j2') }}"

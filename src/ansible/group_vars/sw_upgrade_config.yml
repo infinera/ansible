@@ -1,0 +1,57 @@
+---
+
+# Refer `sw_mgmt_config.yml` file
+sw_configs:
+  # Time in minutes to wait to check NE availability after restart_with_emptydb operation 
+  restart_with_emptydb_wait_time: 10
+  
+  # Time in minutes to wait to check NE availability after revert operation 
+  revert_wait_time: 10
+  
+  # Time in minutes to wait to check NE availability after fresh_install operation 
+  fresh_install_wait_time: 10
+
+  # Time in minutes to wait for after the prepare operation has been initiated
+  prepare_wait_time: 20
+  
+  # Time in minutes to wait after the upgrade operation has been initiated
+  upgrade_wait_time: 30
+
+  # To download SW image from FTP server to NE
+  download :
+    # ftp server details , please refer ftp_server.yml 
+    ftp_server: "{{ ftp_server.SERVER_2 }}"
+    path: "/home/pub/R18.2.10.0202/tar_ne/SIM/XTC2"
+    sw_image_version: R18.2.10.0202
+    # Arch type is sim/ppc/x86 and file with name R18.2.10.0118.<sim/ppc/x86>.tar.gz should be present in FTP Server
+    arch: sim
+    # Time to wait to check NE availability after download operation 
+    wait_time: 15
+
+# Refer `db_mgmt_config.yml` file
+
+db_configs:
+  # Number of times to retry the backup check after the backup operation has been initiated
+  check_backup_retries: 5
+
+  # Delay in seconds between each retry
+  check_backup_delay: 60
+
+  # Delay in minutes after the restore operation has been initiated
+  # Common for restore, and restore_local tasks
+  restore_pause: 10
+##############################################################################################################################################  
+  backup:
+    # ftp server details , please refer ftp_server.yml
+    primary_ftp_server: "{{ ftp_server.SERVER_1 }}"
+    primary_path: "dbbkups"
+    # ftp server details , please refer ftp_server.yml
+    secondary_ftp_server: "{{ ftp_server.SERVER_2 }}"
+    secondary_path: "secondary_dbbkups"
+    simultaneous: false
+    overwrite: true
+    run_id: "UNIQUE_RUN_ID" # File will be saved as DB_UNIQUE_RUN_ID_NODENAME
+    #file_mapping is used when you want to use diffrent DB names for diffrent NEs 
+    file_mapping: 
+      "XTC284": "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" # For NE1 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE1" file will be considered for backup
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" # For NE2 , "DB_UNIQUE_RUN_ID_CUSTOM_FILE2" file will be considered for backup

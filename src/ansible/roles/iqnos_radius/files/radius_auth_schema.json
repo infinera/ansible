@@ -1,0 +1,12 @@
+{
+    "title": "IQNOS RADIUS Authentication Policy",
+    "description": "The schema for the iqnos_radius authentication",
+    "properties": {
+        "auth_policy": {
+            "type": "string",
+            "pattern": "(?i)^(LOCAL|RADIUS|RFL)$"
+        }
+    },
+    "required": ["auth_policy"],
+    "additionalProperties": false
+}

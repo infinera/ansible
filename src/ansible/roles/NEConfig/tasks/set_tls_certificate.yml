@@ -1,0 +1,24 @@
+---
+
+- name: Validating Certificate Configs
+  include_tasks: certificate_configs_validation.yml
+
+- name: Retrieving Node Controller Shelf Identifier
+  include_tasks: get_NC_shelf_id.yml
+
+- name: Retrieving existing Security Attributes
+  include_tasks: retrieve_security_attributes.yml
+
+- name: Checking if the Existing TLS Configurations are same as the input
+  set_fact:
+    tls_cert_configs: "{{ lookup('template', 'tls_certificate_idempotency.j2') }}"
+
+- name: Setting TLS certificate
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'set_tls_certificate.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: set_tls_certificate_res
+  changed_when: set_tls_certificate_res.status == "SUCCESS"
+  failed_when: set_tls_certificate_res.status == "FAILURE"

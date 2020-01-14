@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in disable_arc_configs.identifiers -%}
+  {%- set cmd = "OPR-ARC-NTP::%s:CTAG::;" | format(identifier) -%}
+  {%- set dummy = command_ip_map.update({cmd: {"ARC": "IND"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

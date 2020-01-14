@@ -1,0 +1,11 @@
+---
+
+- name: Retrieving Backup Schedule
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_backup_schedule.j2') }}"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+    output: "json"
+  register: rtrv_bkup_sched_res
+  changed_when: false
+  failed_when: rtrv_bkup_sched_res.status == 'FAILURE'

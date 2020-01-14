@@ -1,0 +1,23 @@
+---
+
+- name: Retrieve Alarm Reporting
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'rtrv_alarm_reporting.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_arc_res
+  changed_when: false
+  failed_when: rtrv_arc_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ ntp_mapper }}"
+    tl1_response: "{{ rtrv_arc_res }}"
+  register: mapped_rtrv_arc_res
+  when:
+    - ntp_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_arc_res.skipped | default(false) -%}{{- rtrv_arc_res -}}{%- else -%}{{- mapped_rtrv_arc_res -}}{%- endif -%} "

@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (alarm_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "alarm_configs is not defined" 
+  when: alarm_configs is not defined
+
+- name: Validating the alarm configs
+  infn_cfg_validator:
+    what_is_being_validated: "NTP Alarm Configurations - alarm_configs"
+    configs: "{{ alarm_configs }}"
+    schema: "{{ lookup('file', 'ntp_state_schema.json') | from_json | string }}"
+  register: alarm_validation_res
+  changed_when: false
+  failed_when: not alarm_validation_res.validated

@@ -1,0 +1,6 @@
+{# Return true for configurations that are idempotent #}
+{%- if rtrv_dflt_tmplt_tribptp_res["RETRIEVE DEFAULT TEMPLATE(S) TRIB"].result["Component-0"].Parameters.SVCTYPE == default_template_configs.trib.service_type -%}
+    {{- true -}}
+{%- else -%}
+    {{- false -}}
+{%- endif -%}

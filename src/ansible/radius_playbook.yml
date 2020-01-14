@@ -1,0 +1,54 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to RADIUS Server Configurations. Please refer roles/iqnos_radius/README.md
+# For input configurations please refer/edit group_vars/iqnos_radius_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ cfg_file | default('group_vars/iqnos_radius_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/radius_mapper.yml') }}"
+  vars:
+     NE_IP: "{{ ne_ip | default(hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd | default(hostvars[inventory_hostname]['ansible_password']) }}"
+     
+### End Copy ###     
+
+  tasks:
+    
+    # To Retrieve the RADIUS servers and the associated configurations from the Network Element
+    - import_role:
+        name: iqnos_radius
+      vars:
+        task_name: "radius_retrieve"
+      tags: retrieve
+    
+    # To Edit the RADIUS configuration
+    # Please refer/edit group_vars/iqnos_radius_config.yml - server_configs
+    - import_role:
+        name: iqnos_radius
+      vars:
+        task_name: "radius_configuration"
+      tags: config
+    
+    # To retrieve the Authentication Policy
+    - import_role:
+        name: iqnos_radius
+      vars:
+        task_name: "auth_policy_retrieve"
+      tags: auth_retrieve
+    
+    # To Edit the Authentication Policy
+    # Please refer/edit group_vars/iqnos_radius_config.yml - auth_configs
+    - import_role:
+        name: iqnos_radius
+      vars:
+        task_name: "auth_policy_configuration"
+      tags: auth_config

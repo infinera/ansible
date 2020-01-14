@@ -1,0 +1,12 @@
+{%- set command_ip_map = {} -%}
+{%- if (tls_cert_configs | length) > 0 -%}
+   {%- set shelf_id = node_controller_shelf_identifier -%}
+   {%- if tls_cert_configs.certificate_identifier is defined -%}
+      {%- set aid = shelf_id | string + '-' + tls_cert_configs.certificate_identifier -%}
+   {%- else -%}
+      {%- set aid = '' -%}
+   {%- endif -%}
+   {%- set cmd = 'SET-ATTR-SECUDFLT:%s::CTAG:::TLSIDLETIME=%s,TLSCONNTIME=%s,TLSCERT=%s;' | format(TID, tls_cert_configs.idle_time | default(''), tls_cert_configs.connection_time | default(''), aid) -%}
+   {%- set dummy = command_ip_map.update({cmd: tls_cert_configs}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

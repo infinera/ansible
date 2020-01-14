@@ -1,0 +1,33 @@
+---
+# NTP server configuration template.
+
+  # Maximum of three NTP servers(NTP-1,NTP-2,NTP-3) are allowed to be configured for a given Network Element.
+  # Below is the sample template to configure the NTP servers for a given Network Element.
+
+  ########################################################################################
+  #                                                                                      #
+  # AID               = Identifier for the NTP server to edit                            #
+  # ipaddr            = The NTP server's IP Address                                      #
+  # primary_state     = Primary state of the NTP server                                  #
+  # ctag              = Correlation tag for a configuration                              #
+  #                                                                                      #
+  ########################################################################################
+
+server_configs:
+  server1:
+    identifier       : NTP-1
+    ipaddress        : 10.10.10.11
+
+  server2:
+    identifier       : NTP-2
+    ipaddress        : 20.20.20.21
+
+  server3:
+    identifier       : NTP-3
+    ipaddress        : 30.30.30.31
+
+state_configs:
+  identifiers:
+    - NTP-1
+    - NTP-2
+    - NTP-3

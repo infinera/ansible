@@ -1,0 +1,20 @@
+{%- set ret_val = {} -%}
+{%- set cert_id = certificate_configs.tls_certificate.certificate_identifier -%}
+{%- if certificate_configs.tls_certificate.node_to_certificate_identifier_mapping is defined -%}
+    {%- if certificate_configs.tls_certificate.node_to_certificate_identifier_mapping[TID] is defined -%}
+        {%- set cert_id = certificate_configs.tls_certificate.node_to_certificate_identifier_mapping[TID] -%}
+    {%- endif -%}
+{%- endif -%}
+{%- set conn_time = certificate_configs.tls_certificate.connection_time | default('') -%}
+{%- set idle_time = certificate_configs.tls_certificate.idle_time | default('') -%}
+{%- set aid = node_controller_shelf_identifier | string + '-' + cert_id -%}
+{%- if rtrv_sec_attr_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters.TLSCERT != aid -%}
+    {%- set dummy = ret_val.update({"certificate_identifier": cert_id}) -%}
+{%- endif -%}
+{%- if idle_time != '' and rtrv_sec_attr_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters.TLSIDLETIME != idle_time | string -%}
+    {%- set dummy = ret_val.update({"idle_time": idle_time}) -%}
+{%- endif -%}
+{%- if conn_time != '' and rtrv_sec_attr_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters.TLSCONNTIME != conn_time | string -%}
+    {%- set dummy = ret_val.update({"connection_time": conn_time}) -%}
+{%- endif -%}
+{{- ret_val -}}

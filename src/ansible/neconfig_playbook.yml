@@ -1,0 +1,114 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to System Information, gRPC Settings, HTTPS Settings, and X.509 Certificates. Please refer roles/NEConfig/README.md
+# For input configurations please refer Or edit group_vars/neconfig_certificate_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ###
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files: 
+    - "{{ cfg_file | default('group_vars/neconfig_certificate_config.yml') }}" # The configuration file that contains the input configuration
+    - "{{ mapper_file | default('group_vars/neconfig_mapper.yml') }}" # DON'T CHANGE - Mapper file to map the parameters that are retrieved from the Network Element
+    - "{{ ftp_file | default('group_vars/ftp_server.yml') }}" # File that contains the Server details from which certificates are downloaded
+  vars:
+     NE_IP: "{{ ne_ip | default (hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd | default (hostvars[inventory_hostname]['ansible_password']) }}"
+     TID: "{{ tid | default(hostvars[inventory_hostname]['tid'] | default('')) }}"
+
+### End Copy ###
+
+
+  tasks:
+    # To validate certificate configs
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: certificate_configs_validation
+      tags: validate
+
+    # To retrieve the attributes of system information from the Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: retrieve_system_information
+      tags: retrieve_system_information
+
+    # To retrieve the gRPC attribute from the list of system information attributes from Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: retrieve_grpc_settings
+      tags: retrieve_grpc_settings
+
+    # To retrieve the TLSCERT, HTTPS attributes from the list of security attributes from Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: retrieve_security_attributes
+      tags: retrieve_security_attributes
+
+    # To Enable gRPC on the Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: enable_grpc
+      tags: enable_grpc
+
+    # To Disable gRPC on the Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: disable_grpc
+      tags: disable_grpc
+
+    # To Enable HTTPS on the Network Element
+    # Requires a TLS certificate to be set
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: enable_https
+      tags: enable_https
+
+    # To Disable HTTPS on the Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: disable_https
+      tags: disable_https
+
+    # To set a configured certificae as the TLS certificate
+    # Required for enabling HTTPS
+    # For input configurations please refer/edit group_vars/neconfig_certificate_config.yml
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: set_tls_certificate
+      tags: set_tls_certificate
+
+    # Configure X.509 certificates with the specified configuration on shelves of Network Elements
+    # For input configurations please refer/edit group_vars/neconfig_certificate_config.yml
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: configure_certificate
+      tags: configure_certificate
+
+    # Delete X.509 certificates that have been configured on the Network Element
+    # For input configurations please refer/edit group_vars/neconfig_certificate_config.yml
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: delete_certificate
+      tags: delete_certificate
+
+    # Retrieve X.509 certificates that have been configured on the Network Element
+    - import_role:
+        name: NEConfig
+      vars:
+        task_name: retrieve_certificate
+      tags: retrieve_certificate

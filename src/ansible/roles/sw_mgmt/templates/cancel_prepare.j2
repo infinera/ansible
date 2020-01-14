@@ -1,0 +1,11 @@
+{%- set command_ip_map = {} -%}
+{%- set sw_info = rtrv_sw_info_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in sw_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE != "Current" -%}
+            {%- set cmd = 'APPLY:%s::CTAG:::FILENAME="file:///%s",OPERTYPE=CANCELPREPARE;' | format(TID, value.Parameters.FILE) -%}
+            {%- set dummy = command_ip_map.update({cmd: {"image": value.Parameters.FILE}}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

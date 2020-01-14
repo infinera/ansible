@@ -1,0 +1,46 @@
+---
+
+- name: Software and Database Reversion
+  block:
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: Saving current SW Image version for validating revert 
+      set_fact:
+        prerun_current_sw_version: "{{ current_sw_version }}"
+    
+    - name: Fail if SW image is not present for Revert , Skip the task otherwise
+      fail: 
+        msg: "SW Image not present for Revert"
+      when: non_current_sw_version == ''
+
+    - name: Retrieving the Current Database
+      include_tasks: get_current_db.yml
+      
+    - name: Saving current DB Image version for validating revert 
+      set_fact:
+        prerun_current_db_name: "{{ current_db_name }}"
+        
+    - name: Initiating Software and Database Reversion
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'revert-swdb.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: revert_res
+      changed_when: revert_res.status == 'SUCCESS'
+      failed_when: revert_res.status == 'FAILURE'
+
+    - name: "Pausing for {{ sw_configs.revert_wait_time | default(revert_wait_time) }} minute(s)"
+      pause:
+        minutes: "{{ sw_configs.revert_wait_time | default(revert_wait_time) }}"
+
+    - name: Checking if the Network Element is reachable
+      include_tasks: availability.yml
+
+    - name: Checking if Revert is successful
+      include_tasks: check_revert.yml
+
+    - name: Task Summary
+      debug:
+        msg: "{{ revert_res }}"

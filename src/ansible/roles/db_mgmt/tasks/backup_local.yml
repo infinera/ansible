@@ -1,0 +1,34 @@
+---
+
+- name: Retrieve database images
+  include_tasks: retrieve_database_images.yml
+
+- name: Listing the Database Images before creating Local DB Backup
+  set_fact:
+    imgs_before_local_backup: "{{ lookup('template', 'list_db_images.j2') }}"
+
+- name: Fail the task if No space for new backup , skip otherwise.(Max supported DB images are 3)  
+  fail:
+    msg: "Maximum number of database images (3) is present , please cleanup old images and run again"
+  when: imgs_before_local_backup | length == 3 
+
+- name: Performing Local Backup
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'local_backup.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: local_bkup_res
+  changed_when: local_bkup_res.status == 'SUCCESS'
+  failed_when: local_bkup_res.status == 'FAILURE'
+
+- name: Retrieve database images
+  include_tasks: retrieve_database_images.yml
+
+- name: Listing the Database Images after creating Local DB Backup
+  set_fact:
+    imgs_after_local_backup: "{{ lookup('template', 'list_db_images.j2') }}"
+
+- name: Summary of Local DB Backup
+  debug:
+    msg: "{{ lookup('template', 'bkup_local_db_name.j2') }}"

@@ -1,0 +1,67 @@
+{
+    "title": "IQNOS RADIUS Configuration",
+    "description": "The schema for the iqnos_radius configuration",
+    "type": "object",
+    "patternProperties": {
+        "^server[1-3]$": {
+            "type": "object",
+            "$ref": "#/definitions/RADIUSCfg"
+        }
+    },
+    "minProperties": 1,
+    "maxProperties": 3,
+    "additionalProperties": false,
+    "definitions": {
+        "RADIUSCfg": {
+            "description": "The congfiguration structure of RADIUS server",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "description": "The RADIUS server that we are going to configure",
+                    "type": "string",
+                    "pattern": "(?i)^RADSERVER[1-3]$"
+                },
+                "ipaddress": {
+                    "description": "The IP Address of the RADIUS server",
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "format": "ipv4"
+                        },
+                        {
+                            "format": "ipv6"
+                        }
+                    ]
+                },
+                "port": {
+                    "description": "The port of the RADIUS server",
+                    "type": "integer",
+                    "minimum": 1024,
+                    "maximum": 65535
+                },
+                "timeout": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 90
+                },
+                "shared_secret_key": {
+                    "description": "",
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                },
+                "max_attempts": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                }
+            },
+            "required": [
+                "identifier"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

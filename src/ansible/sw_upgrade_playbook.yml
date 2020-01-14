@@ -1,0 +1,86 @@
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing full SW upgrade. Please refer roles/db_mgmt/README.md and  roles/sw_mgmt/README.md
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+- hosts: "{{ host_group }}"
+  serial: "{{ batch_size | default(3) }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ cfg_file | default('group_vars/sw_upgrade_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/sw_upgrade_mapper.yml') }}"
+    - "{{ ftp_file | default('group_vars/ftp_server.yml') }}"
+
+  vars:
+    NE_IP: "{{ ne_ip | default(hostvars[inventory_hostname]['ansible_host']) }}"
+    NE_User: "{{ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+    NE_Pwd: "{{ ne_pwd | default(hostvars[inventory_hostname]['ansible_password']) }}"
+    TID: "{{ hostvars[inventory_hostname]['tid']| default('') }}"
+
+  vars_prompt:
+    - name: skip_confirm
+      prompt: "This will Delete existing sw,db images from Network Element \n Do you want to continue (yes/no)?"
+      default: 'yes'
+      private: no
+ 
+### End Copy ###
+
+  tasks:
+
+    - name: Aborting SW Upgrade , If user input is not 'yes'
+      fail:
+        msg: "Aborting SW Upgrade as per user input - {{ skip_confirm }}" 
+      when: skip_confirm != 'yes'
+
+    # Summary before full upgrade
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: summary_before_full_upgrade
+    
+    - name: Start software upgrade process
+      block:
+
+      # Cleanup existing software images
+      - import_role:
+          name: sw_mgmt
+        vars:
+          task_name: cleanup
+
+      # Cleanup existing database images
+      - import_role:
+          name: db_mgmt
+        vars:
+          task_name: cleanup_all
+
+      # Download the new software image
+      - import_role:
+          name: sw_mgmt
+        vars:
+          task_name: download
+
+      # Backup the image up on an FTP server
+      - import_role:
+          name: db_mgmt
+        vars:
+          task_name: backup
+
+      # Initiate the upgrade preparation operation
+      - import_role:
+          name: sw_mgmt
+        vars:
+          task_name: prepare
+
+      # Initiate the upgrade preparation operation
+      - import_role:
+          name: sw_mgmt
+        vars:
+          task_name: upgrade
+      when: node_already_upgraded is not defined
+
+    - name: Print skip reason if node is already upgraded 
+      debug:
+        msg: "Node is already upgraded to {{ current_sw_version }}"
+      when: node_already_upgraded is defined

@@ -1,0 +1,10 @@
+---
+
+- name: Idempotency Test - RADIUS Authentication Policy
+  block:
+    - name: Retrieving the Authentication Policy
+      include_tasks: auth_policy_retrieve.yml
+
+    - name: Checking if the existing authentication policy is same as the given one
+      set_fact:
+        auth_configs: "{{ lookup('template', 'auth_policy_idempotency.j2') }}"

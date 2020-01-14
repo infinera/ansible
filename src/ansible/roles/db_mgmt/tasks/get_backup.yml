@@ -1,0 +1,8 @@
+---
+
+- name: Retrieving Database Image(s) Information
+  include_tasks: retrieve_database_images.yml
+  
+- name: Getting Backup Image(s) Names
+  set_fact:
+    backup_names: "{{ lookup('template', 'bkup_db_name.j2') }}"

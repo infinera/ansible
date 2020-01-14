@@ -1,0 +1,24 @@
+---
+
+- name: Validating Certificate Configs
+  include_tasks: certificate_configs_validation.yml
+
+- name: Retrieving Node Controller Shelf Identifier
+  include_tasks: get_NC_shelf_id.yml
+
+- name: Retrieving Certificate(s)
+  include_tasks: retrieve_certificate.yml
+
+- name: Comparing existing Configurations against Input Configurations
+  set_fact:
+    del_cert_configs: "{{ lookup('template', 'delete_certificate_idempotency.j2') }}"
+
+- name: Deleting X.509 Certificate(s)
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'delete_certificate.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: delete_cert_res
+  changed_when: delete_cert_res.status == "SUCCESS"
+  failed_when: delete_cert_res.status == "FAILURE"

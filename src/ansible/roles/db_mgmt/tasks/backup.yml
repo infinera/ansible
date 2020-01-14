@@ -1,0 +1,65 @@
+---
+
+- name: Database Backup
+  block:
+    - name: Validating the Database configs
+      include_tasks: db_configs_validation.yml
+    
+    - set_fact:
+        ftp_server_type: "backup"
+    
+    - name: Configuring Transfer Protocol
+      include_tasks: configure_protocol.yml
+
+    - name: Configuring simultaneous Transfer 
+      include_tasks: configure_simultaneous.yml
+      when: db_configs.backup.simultaneous is defined
+    
+    - name: Backing up the Database Image to the FTP server
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'backup-db.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: bkup_res
+      changed_when: bkup_res.status == 'SUCCESS'
+      failed_when: bkup_res.status == 'FAILURE'
+
+    - set_fact:
+        ftp_file_type : "RFBU"
+    
+    - name: Retrieving file transfer status
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'rtrv_FXFR.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: chk_db_bk_res
+      until: "{{ lookup('template', 'check_FXFR_status.j2') }}"
+      retries: "{{ db_configs.check_backup_retries | default(check_backup_retries) }}"
+      delay: "{{ db_configs.check_backup_delay | default(check_backup_delay) }}"
+    
+    - name: Renaming Raw Response Parameters
+      infn_mapper:
+        mapper: "{{ db_mapper }}"
+        tl1_response: "{{ chk_db_bk_res }}"
+      register: mapped_chk_db_bk_res
+      when:
+        - db_mapper is defined
+
+    - name: Result of the retrieval
+      debug:
+        msg: "{%- if mapped_chk_db_bk_res.skipped | default(false) -%}{{- chk_db_bk_res -}}{%- else -%}{{- mapped_chk_db_bk_res -}}{%- endif -%} "
+
+    - set_fact:
+        is_db_backup_failed : "{{ lookup('template', 'fail-db-backup.j2') }}"
+
+    - name: Failing in case the DB has not been backedup , skipping the task otherwise
+      fail:
+        msg: "{{ lookup('template', 'fail-db-backup-msg.j2') }}"
+      when: is_db_backup_failed | bool
+
+    - name: Summary of DB backup
+      debug :
+        msg : "{{ lookup('template', 'backup-db-summary.j2') }}"
+    

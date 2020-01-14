@@ -1,0 +1,18 @@
+---
+
+- name: Retrieving existing Security Attributes
+  include_tasks: retrieve_security_attributes.yml
+
+- name: Comparing against the existing configurations
+  set_fact:
+    is_https_enabled: "{{ lookup('template', 'is_https_enabled.j2') }}"
+
+- name: Disabling HTTPS
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'disable_https.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: disable_https_res
+  changed_when: disable_https_res.status == "SUCCESS"
+  failed_when: disable_https_res.status == "FAILURE"

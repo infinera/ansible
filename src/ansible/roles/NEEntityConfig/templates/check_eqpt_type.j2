@@ -1,0 +1,17 @@
+{# Return true for configurations that are idempotent #}
+{%- set result_key = "RETRIEVE EQUIPMENT FOR %s" -%}
+{%- set ret_val = {} -%}
+{%- set one_hundred_gx = [] -%}
+{%- set non_one_hundred_gx = [] -%}
+{%- for aid in eqpt_operation_mode_configs.node_to_aid_mapping[TID] -%}
+    {%- set fmt_res_key = result_key | format(aid) -%}
+    {%- if rtrv_eqpt_res[fmt_res_key] is defined and rtrv_eqpt_res[fmt_res_key].result is defined -%}
+        {%- if rtrv_eqpt_res[fmt_res_key].result[aid].Parameters.PROVTYPE == "TIM-1-100GX" -%}
+            {%- set dummy = one_hundred_gx.append(aid) -%}
+        {%- else -%}
+            {%- set dummy = non_one_hundred_gx.append(aid) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- set dummy = ret_val.update({"1-100GX_AIDs": one_hundred_gx, "Non_1-100GX_AIDs": non_one_hundred_gx}) -%}
+{{- ret_val -}}

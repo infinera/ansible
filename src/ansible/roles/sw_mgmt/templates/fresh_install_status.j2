@@ -1,0 +1,7 @@
+{%- set ret_val = {"msg": '', "status": ''} -%}
+{%- if chk_rtrv_sw_info_res.status == "FAILURE" -%}
+    {%- set dummy = ret_val.update({"msg": "Fresh Install is Successful. Could not login to the Network Element with existing credentials. Current Software Image Version - %s" | format(non_current_sw_version), "status": "SUCCESS"}) -%}
+{%- else -%}
+    {%- set dummy = ret_val.update({"msg": "Fresh Install is not Successful. Could login to the Network Element with existing credentials", "status": "FAILURE"}) -%}
+{%- endif -%}
+{{- ret_val -}}

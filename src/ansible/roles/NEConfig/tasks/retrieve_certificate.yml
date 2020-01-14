@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving X.509 Certificate(s)
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_certificate.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_cert_res
+  changed_when: false
+  failed_when: rtrv_cert_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ certificate_mapper }}"
+    tl1_response: "{{ rtrv_cert_res }}"
+  register: mapped_rtrv_cert_res
+  when:
+    - certificate_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_cert_res.skipped | default(false) -%}{{- rtrv_cert_res -}}{%- else -%}{{- mapped_rtrv_cert_res -}}{%- endif -%}"

@@ -1,0 +1,20 @@
+---
+# defaults file for iqnos_ntp_tl1
+# This variable is defined to validate the identifier which is defined in a group configuration(group_vas/iqnos_ntp_config.yml).
+
+acceptable_identifiers:
+  - NTP-1
+  - NTP-2
+  - NTP-3
+
+acceptable_primary_states:
+  - IS
+  - OOS
+
+#Below are the possible options can be configured as a RADIUS authentication policy:
+# LOCAL  - Users are authenticated according to the Local settings on the network element.
+# RADIUS - Users are authenticated according to the settings on the RADIUS servers that are configured for the network element.
+# RFL    - Users are authenticated first according to the settings on the RADIUS servers.
+#          If no RADIUS server can be contacted,  users are authenticated according to the local settings on the network element.
+
+default_auth_policy: LOCAL

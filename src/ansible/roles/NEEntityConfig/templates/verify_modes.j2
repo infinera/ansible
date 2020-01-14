@@ -1,0 +1,32 @@
+{%- set ret_aid_map = {} -%}
+{%- for aid in enable_lc_configs.node_to_aid_mapping[TID] -%}
+    {%- set c_aid = aid[:-1] + 'T' + aid[-1] + '-1' -%}
+    {%- set otu4_key = 'RETRIEVE %s FOR %s' | format('OTU4', c_aid) -%}
+    {%- set odu4_key = 'RETRIEVE %s FOR %s' | format('ODU4', c_aid) -%}
+    {%- set tim_key = 'RETRIEVE EQUIPMENT FOR %s' | format(aid) -%}
+    {%- if rtrv_otu4_res[otu4_key].result is not defined and rtrv_odu4_res[odu4_key].result is not defined -%}
+        {%- set dummy = ret_aid_map.update({aid : "xcon_cannot_be_created - ODU4, OTU4 FACILITIES DO NOT EXIST"}) -%}
+    {%- else -%}
+        {%- set otu4_result = rtrv_otu4_res[otu4_key].result[c_aid].Parameters -%}
+        {%- set odu4_result = rtrv_odu4_res[odu4_key].result[c_aid].Parameters -%}
+        {%- set tim_result = rtrv_tim_res[tim_key].result[aid].Parameters -%}
+        {%- set is_otu4_mode_change_req = false -%}
+        {%- set is_odu4_mode_change_req = false -%}
+        {%- if otu4_result.FACMONMD != 'Im' and otu4_result.SM != 'Adaptation' -%}
+            {%- set is_otu4_mode_change_req = true -%}
+        {%- endif -%}
+        {%- if odu4_result.FACMONMD != 'Im' and odu4_result.SM != 'Adaptation' -%}
+            {%- set is_odu4_mode_change_req = true -%}
+        {%- endif -%}
+        {%- if is_odu4_mode_change_req and is_otu4_mode_change_req and tim_result.OPRMODE != "ODUk" -%}
+            {%- set dummy = ret_aid_map.update({aid : "xcon_required" }) -%}
+        {%- elif is_odu4_mode_change_req and is_otu4_mode_change_req == false and tim_result.OPRMODE != "ODUk" -%}
+            {%- set dummy = ret_aid_map.update({aid : "xcon_required" }) -%}
+        {%- elif tim_result.OPRMODE == "ODUk" -%}
+            {%- set dummy = ret_aid_map.update({aid : "xcon_cannot_be_created - TIM OPERATION MODE IS ODUk"}) -%}
+        {%- else -%}
+            {%- set dummy = ret_aid_map.update({aid : "xcon_not_required - NO OPERATIONS NEED TO BE PERFORMED AS SYSTEM IS ALREADY CONFIGURED WITH INTENDED INPUT"}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- ret_aid_map -}}

@@ -1,0 +1,28 @@
+{%- set command_ip_map = {} -%}
+{%- for acf in acf_configs.create -%}
+  {%- set name = acf.name -%}
+  {%- set label = acf.label | default('') -%}
+  {%- set interface  = acf.interface | default('') -%}
+  {%- set source_address = acf.source_address | default('') -%}
+  {%- set source_prefix_length = acf.source_prefix_length | default('') -%}
+  {%- set source_port = acf.source_port | default('') -%}
+  {%- set source_port_range = acf.source_port_range | default('') -%}
+  {%- set dest_address = acf.dest_address | default('') -%}
+  {%- set dest_prefix_length = acf.dest_prefix_length | default('') -%}
+  {%- set dest_port = acf.dest_port | default('') -%}
+  {%- set dest_port_range = acf.dest_port_range | default('') -%}
+  {%- set protocol = acf.protocol -%}
+  {%- set operation = acf.operation -%}
+  {%- set direction = acf.direction | default('') -%}
+  {%- set sequence = acf.sequence -%}
+  {%- set ctag = loop.index -%}
+  {%- if source_address | ipv6 -%}
+    {%- set source_address = '\"' + source_address | string + '\"' -%}
+  {%- endif -%}
+  {%- if dest_address | ipv6 -%}
+    {%- set dest_address = '\"' + dest_address | string + '\"' -%}
+  {%- endif -%}
+  {%- set cmd = "ENT-ACF::%s:%s:::LABEL=%s,INTF=%s,PROTOCOL=%s,SRCIP=%s,SIPPREFIXLEN=%s,DSTIP=%s,DIPPREFIXLEN=%s,SRCPORT=%s,SRCPORTRANGE=%s,DSTPORT=%s,DSTPORTRANGE=%s,DIRN=%s,OPERN=%s,SEQUENCE=%s;" | format(name,ctag,label,interface,protocol,source_address,source_prefix_length,dest_address,dest_prefix_length,source_port,source_port_range,dest_port,dest_port_range,direction,operation,sequence) -%}
+  {%- set dummy = command_ip_map.update({cmd: acf}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,4 @@
+{%- set command_ip_map = {} -%}
+{%- set cmd = 'ED-FXFR:%s::%s:::FTPFILETYPE=RFBU,SIMULTXFR=%s;'| format(TID,range(1, 500) | random ,db_configs.backup.simultaneous |string |upper) -%}
+{%- set dummy = command_ip_map.update({cmd: {"simultaneous":db_configs.backup.simultaneous}}) -%}
+{{- command_ip_map -}}

@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving System Information
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_system_information.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_sys_info_res
+  changed_when: false
+  failed_when: rtrv_sys_info_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ system_information_mapper }}"
+    tl1_response: "{{ rtrv_sys_info_res }}"
+  register: mapped_rtrv_res
+  when:
+    - system_information_mapper is defined
+
+- name: gRPC Settings
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{%- set dummy = rtrv_sys_info_res['RETRIEVE SYS'].result['Component-0'].update({'Parameters': {'GRPC': rtrv_sys_info_res['RETRIEVE SYS'].result['Component-0'].Parameters.GRPC}}) -%}{{- rtrv_sys_info_res -}}{%- else -%}{%- set dummy = mapped_rtrv_res['RETRIEVE SYS'].result['Component-0'].update({'Parameters': {'grpc_status': mapped_rtrv_res['RETRIEVE SYS'].result['Component-0'].Parameters.grpc_status}}) -%}{{- mapped_rtrv_res -}}{%- endif -%}"

@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (auth_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "auth_configs is not defined" 
+  when: auth_configs is not defined
+
+- name: Validate the RADIUS Authentication Policy
+  infn_cfg_validator:
+    what_is_being_validated: "RADIUS Authentication Policy Configurations - auth_configs"
+    configs: "{{ auth_configs }}"
+    schema: "{{ lookup('file', 'radius_auth_schema.json') | from_json | string }}"
+  register: auth_validation_res
+  changed_when: false
+  failed_when: not auth_validation_res.validated

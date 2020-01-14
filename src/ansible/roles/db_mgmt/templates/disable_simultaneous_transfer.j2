@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- if is_simul_transfer_enabled | bool -%}
+    {%- set cmd = 'ED-FXFR:%s::CTAG:::FTPFILETYPE=RFBU,SIMULTXFR=FALSE;' | format(TID) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"simultaneous_transfer": "false"}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

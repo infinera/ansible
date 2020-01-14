@@ -1,0 +1,6 @@
+{%- set res = chk_db_rs_res["RETRIEVE FXFR"].result["Component-0"].Parameters -%}
+    {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" -%}
+        {{- true -}}
+    {%- else -%}
+        {{- false -}}
+    {%- endif -%}

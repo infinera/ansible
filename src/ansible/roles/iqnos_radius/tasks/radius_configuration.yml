@@ -1,0 +1,24 @@
+---
+
+- name: Configuring the RADIUS servers
+  block:
+    - name: Validating the configurations
+      include_tasks: radius_configuration_pre_validation.yml
+
+    - name: Retrieving the RADIUS servers' details
+      include_tasks: radius_retrieve.yml
+
+    - name: Checking if the existing server configuration is same as the given one
+      set_fact:
+        server_configs: "{{ lookup('template', 'radius_idempotency.j2') }}"
+
+    - name: Change RADIUS configurations
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'radius_configuration.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: rad_cfg_ed_res
+      changed_when: rad_cfg_ed_res.status == 'SUCCESS' or rad_cfg_ed_res.status == 'PARTIAL'
+      failed_when: rad_cfg_ed_res.status == 'FAILURE'
+  when: server_configs is defined

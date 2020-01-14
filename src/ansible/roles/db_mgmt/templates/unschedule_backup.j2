@@ -1,0 +1,5 @@
+{%- set command_ip_map = {} -%}
+{%- if need_to_unsched | bool -%}
+    {%- set dummy = command_ip_map.update({"SCHED-BKUP:::CTAG::::0;": {}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

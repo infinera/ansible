@@ -1,0 +1,5 @@
+---
+# Common tasks for the NE
+
+- name: "{{ task_name }}"
+  include_tasks: "{{ task_name }}.yml"

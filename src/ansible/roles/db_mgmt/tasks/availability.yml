@@ -1,0 +1,11 @@
+---
+
+- name: Checking for the Availability of the Network Element
+  wait_for:
+    host: "{{ tl1.host }}"
+    port: 9090
+    timeout: "{{ (db_configs | default({})).availability_timeout | default(availability_timeout) }}"
+  register: avail_res
+  until: "'Timeout' not in avail_res.msg | default('NoMessageBlock') | string"
+  retries: "{{ (db_configs | default({})).availability_retries | default(availability_retries) }}"
+  delay: "{{ (db_configs | default({})).availability_delay | default(availability_delay) }}"

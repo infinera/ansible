@@ -1,0 +1,7 @@
+{%- set xfr_info = chk_sw_dw_res["RETRIEVE FXFR"].result -%}
+{%- for key, value in xfr_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {{- value.Parameters.LASTXFRSTATE_PRI -}}
+    {%- endif -%}
+{%- endfor -%}
+        

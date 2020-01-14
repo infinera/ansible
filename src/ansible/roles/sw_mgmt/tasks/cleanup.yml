@@ -1,0 +1,17 @@
+---
+
+- name: Software Image Cleanup
+  block:
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: Deleting the Backup Software Image(s)
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'cleanup-sw.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: del_sw_img_res
+      changed_when: del_sw_img_res.status == 'SUCCESS'
+      failed_when: del_sw_img_res.status == 'FAILURE'
+

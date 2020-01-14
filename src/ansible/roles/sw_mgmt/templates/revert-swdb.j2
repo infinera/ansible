@@ -1,0 +1,18 @@
+{%- set command_ip_map = {} -%}
+
+{%- set db_image_name = 'DB_%s_%s'| format (sw_configs.revert.run_id,TID) -%}
+    {%- if sw_configs.revert.db_file_mapping is defined -%}
+        {%- if sw_configs.revert.db_file_mapping[TID] is defined -%}
+            {%- set db_image_name = sw_configs.revert.db_file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set sw_info = rtrv_sw_info_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in sw_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE != "Current" -%}
+            {%- set cmd = 'APPLY:%s::CTAG:::FILENAME="file:///%s",OPERTYPE=REVERT,DBNAME=%s;' | format(TID, value.Parameters.FILE, db_image_name) -%}
+            {%- set dummy = command_ip_map.update({cmd: {"software_image_version": value.Parameters.FILE, "database_image_name": db_image_name}}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

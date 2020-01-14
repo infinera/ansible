@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- if auth_configs.auth_policy is defined -%}
+    {%- set cmd = "SET-ATTR-SECUDFLT:::ea:::AUTHPOLICY=%s;" | format(auth_configs.auth_policy) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"auth_policy": auth_configs.auth_policy}}) -%}
+{%- endif -%}
+{{- command_ip_map -}}

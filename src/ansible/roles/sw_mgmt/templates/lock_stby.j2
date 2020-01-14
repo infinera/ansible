@@ -1,0 +1,17 @@
+{%- set command_ip_map = {} -%}
+{%- set unlock_states = ['IS-NR','OOS-AU','IS-ANR'] -%}
+{%- set res = rtrv_stby_res["RETRIEVE EQUIPMENT"].result -%}
+{%- for key, value in res.iteritems() -%}
+    {%- if value.Parameters is defined -%}
+        {%- if value.Parameters.SST is defined and 'ACT' in value.Parameters.SST -%}
+            {%- set dummy = 'this is active card' -%}
+        {%- else -%}
+            {%- set pst_pstq = "%s-%s" | format(value.Parameters.PST,value.Parameters.PSTQ) -%}
+            {%- if pst_pstq in unlock_states -%}
+                {%- set cmd = 'ed-eqpt::%s:CTAG::::OOS;' | format(key) -%}
+                {%- set dummy = command_ip_map.update({cmd:{}}) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,13 @@
+{%- macro chk_for_idmp() -%}
+    {%- set rtrv_res_ = rtrv_res["RETRIEVE NTP"].result -%}
+    {%- set result = [] -%}
+    {%- for identifier in state_configs.identifiers -%}
+        {%- set secondary_state = rtrv_res_[identifier | upper].Parameters.SST | default('') -%}
+        {%- if "MT" in secondary_state -%}
+            {{- result.append(identifier) -}}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- set dummy = state_configs.update({"identifiers": result}) -%}
+    {{- state_configs -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

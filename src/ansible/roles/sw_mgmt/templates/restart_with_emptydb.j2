@@ -1,0 +1,4 @@
+{%- set command_ip_map = {} -%}
+{%- set cmd = 'APPLY:%s::CTAG:::FILENAME="file:///%s",OPERTYPE=INSTALLWITHEMPTYDB;' | format(TID, current_sw_version) -%}
+{%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{{- command_ip_map -}}

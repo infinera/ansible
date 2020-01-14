@@ -1,0 +1,13 @@
+---
+- name: Fail if input configurations (sw_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "sw_configs is not defined" 
+  when: sw_configs is not defined
+
+- name: Validating the Software configs
+  infn_cfg_validator:
+    what_is_being_validated: "Software Image Management Configurations - sw_configs"
+    configs: "{{ sw_configs }}"
+    schema: "{{ lookup('file', 'sw_configs_schema.json') | from_json | string }}"
+  register: sw_configs_validation_res
+  failed_when: not sw_configs_validation_res.validated

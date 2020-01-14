@@ -1,0 +1,33 @@
+{
+    "title": "Operation state configs for equipment(TIM)",
+    "description": "The schema for equipment(TIM) operation state configs",
+    "type": "object",
+    "properties": {
+        "eqpt": {
+            "description": "The equipment for which the operation state has to be modified",
+            "type": "string",
+            "pattern": "(?i)^TIM$"
+        },
+        "mode": {
+            "description": "The operation mode to which the equipment has to be set",
+            "type": "string",
+            "enum": ["ODUk", "ODUk-ODUj", "GBE100-ODU4-4i-2ix10V", "ODU4-ODL"]
+        },
+        "node_to_aid_mapping": {
+            "patternProperties": {
+                "^.*$": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "eqpt",
+        "mode",
+        "node_to_aid_mapping"
+    ]
+}

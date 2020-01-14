@@ -1,0 +1,24 @@
+---
+
+- name: Editing the Network Time Protocol Servers
+  block:
+    - name: Validating the configurations
+      include_tasks: server_configuration_pre_validation.yml
+
+    - name: Retrieving existing NTP Servers
+      include_tasks: rtrv_ntp_config.yml
+
+    - name: Checking if the existing configuration is same as the given one
+      set_fact:
+        server_configs: "{{ lookup('template', 'ntp_idemp.j2') }}"
+
+    - name: Editing the Network Time Protocol Servers
+      infn_tl1:
+          provider: "{{ tl1 }}"
+          commands_and_inputs: "{{ lookup('template', 'edit_ntp_config.j2') }}"
+          save: "{{ module_save_file | default('infn_tl1') }}.txt"
+          output: "json"
+      register: ed_ntp_res
+      changed_when: ed_ntp_res.status == 'SUCCESS' or ed_ntp_res.status == 'PARTIAL'
+      failed_when: ed_ntp_res.status == 'FAILURE'
+  when: server_configs is defined

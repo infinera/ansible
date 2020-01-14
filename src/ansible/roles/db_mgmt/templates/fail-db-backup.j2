@@ -1,0 +1,14 @@
+{%- set res = chk_db_bk_res["RETRIEVE FXFR"].result["Component-0"].Parameters -%}
+{%- if db_configs.backup.simultaneous is defined and db_configs.backup.simultaneous -%}
+    {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" or res.LASTXFRSTATE_SEC | upper != "SUCCEEDED" -%}
+        {{- true -}}
+    {%- else -%}
+        {{- false -}}
+    {%- endif -%}
+{%- else -%}
+    {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" -%}
+        {{- true -}}
+    {%- else -%}
+        {{- false -}}
+    {%- endif -%}
+{%- endif -%}

@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in rem_maintenance_configs.identifiers -%}
+    {%- set cmd = "RST-NTP::%s:%s;" | format(identifier, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"primary_state": "IS"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

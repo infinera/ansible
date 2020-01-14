@@ -1,0 +1,11 @@
+{%- set command_ip_map = {} -%}
+{%- set db_info = rtrv_db_img_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in db_info.items() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE == "Backup" -%}
+            {%- set cmd = 'DLT-RFILE:%s::%s:::FILE="file:///%s",TYPE=DB;' | format(TID, loop.index, value.Parameters.FILE) -%}
+            {%- set dummy = command_ip_map.update({cmd: {"db_image_name": value.Parameters.FILE}}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- command_ip_map -}}

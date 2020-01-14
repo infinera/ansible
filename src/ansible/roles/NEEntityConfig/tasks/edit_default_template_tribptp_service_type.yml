@@ -1,0 +1,21 @@
+---
+
+- name: Validating Default Template Configs
+  include_tasks: default_template_configs_validation.yml
+
+- name: Retrieving existing TRIB settings
+  include_tasks: retrieve_default_template_tribptp.yml
+
+- name: Checking if the existing configuration is same as the given one
+  set_fact:
+    is_trib_cfg_idempotent: "{{ lookup('template', 'default_template_tribptp_idempotency.j2') }}"
+
+- name: Editing default template TRIB service type
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'edit_default_template_tribptp_service_type.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: edit_dflt_tmplt_tribptp_svc_type_res
+  changed_when: edit_dflt_tmplt_tribptp_svc_type_res.status == "SUCCESS"
+  failed_when: edit_dflt_tmplt_tribptp_svc_type_res.status == "FAILURE"

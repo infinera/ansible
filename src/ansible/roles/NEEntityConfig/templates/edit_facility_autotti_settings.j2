@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for aid in fac_autotti_configs.node_to_aid_mapping[TID] -%}
+    {%- set cmd = "ED-%s:%s:%s:%s:::AUTOTTI=%s;" | format(fac_autotti_configs.facility, TID, aid, loop.index, fac_autotti_configs.autotti) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"autotti": fac_autotti_configs.autotti}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

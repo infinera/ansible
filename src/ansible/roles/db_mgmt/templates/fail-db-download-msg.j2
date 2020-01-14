@@ -1,0 +1,6 @@
+{%- set fail_msg = "DB Image Download was not successful. Reason : " -%}
+{%- set res = chk_db_rs_res["RETRIEVE FXFR"].result["Component-0"].Parameters -%}
+    {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" -%}
+        {%- set fail_msg = fail_msg + " Download status on Primary Server- " +res.LASTXFRSTATE_PRI -%}
+    {%- endif -%}
+{{- fail_msg -}}

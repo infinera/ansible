@@ -1,0 +1,23 @@
+---
+
+- name: Retrieve "{{ eqpt_operation_mode_configs.eqpt }}"
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_eqpt.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_eqpt_res
+  changed_when: false
+  failed_when: rtrv_eqpt_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ eqpt_mapper }}"
+    tl1_response: "{{ rtrv_eqpt_res }}"
+  register: mapped_rtrv_eqpt_res
+  when:
+    - eqpt_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_eqpt_res.skipped | default(false) -%}{{- rtrv_eqpt_res -}}{%- else -%}{{- mapped_rtrv_eqpt_res -}}{%- endif -%} "

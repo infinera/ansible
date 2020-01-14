@@ -1,0 +1,33 @@
+{
+    "title": "AUTOTTI settings configs for facilities",
+    "description": "The schema for facility AUTOTTI settings configs",
+    "type": "object",
+    "properties": {
+        "facility": {
+            "description": "The facility for which the AUTOTTI setting has to be modified",
+            "type": "string",
+            "enum": ["ODU4", "OTU4", "ODU2e"]
+        },
+        "autotti": {
+            "description": "AUTOTTI setting for the given facility - Enable/Disable",
+            "type": "string",
+            "pattern": "(?i)^(ENABLED|DISABLED)$"
+        },
+        "node_to_aid_mapping": {
+            "patternProperties": {
+                "^.*$": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "facility",
+        "autotti",
+        "node_to_aid_mapping"
+    ]
+}

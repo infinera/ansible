@@ -1,0 +1,10 @@
+{%- set command_ip_map = {} -%}
+{%- if db_configs[ftp_server_type].primary_ftp_server.protocol == "sftp" -%}
+{%- set cmd = 'SET-ATTR-SECUDFLT:::ctag:::FXFRSSH=TRUE;'-%}
+{%- elif db_configs[ftp_server_type].primary_ftp_server.protocol == "ftp" -%}
+{%- set cmd = 'SET-ATTR-SECUDFLT:::ctag:::FXFRSSH=FALSE;' -%}
+{%- elif db_configs[ftp_server_type].primary_ftp_server.protocol == "scp" -%}
+{%- set cmd = 'SET-ATTR-SECUDFLT:::ctag:::SCP=ENABLE;' -%}
+{%- endif -%}
+{%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{{- command_ip_map -}}
