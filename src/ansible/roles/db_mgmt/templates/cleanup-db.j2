@@ -1,0 +1,7 @@
+{%- if backup_names | exprtype == "list" -%}
+    {%- for name in backup_names -%}
+DLT-RFILE:{{ TID }}::{{ range(1, 500) | random }}:::FILE="file:///{{ name }}",TYPE=DB;
+    {%- endfor -%}
+{%- else -%}
+DLT-RFILE:{{ TID }}::{{ range(1, 500) | random }}:::FILE="file:///{{ backup_names }}",TYPE=DB;
+{%- endif -%}

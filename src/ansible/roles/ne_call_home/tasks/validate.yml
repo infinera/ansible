@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (ne_call_home_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "ne_call_home_configs is not defined" 
+  when: ne_call_home_configs is not defined
+
+- name: Validating the Call Home Configs
+  infn_cfg_validator:
+    what_is_being_validated: "Call Home Configurations - ne_call_home_configs"
+    configs: "{{ ne_call_home_configs }}"
+    schema: "{{ lookup('file', 'ne_call_home_schema.json') | from_json | string }}"
+  register: call_home_cfg_validation_res
+  changed_when: false
+  failed_when: not call_home_cfg_validation_res.validated

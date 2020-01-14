@@ -1,0 +1,8 @@
+---
+
+ne_call_home_mapper:
+    DSTADDR: destination_address
+    DSTPORT: destination_port
+    RETRYCOUNT: retry_count
+    TIMEOUT: time_out
+    TRANSPROTOCOL: protocol

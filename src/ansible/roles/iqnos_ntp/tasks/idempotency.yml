@@ -1,0 +1,11 @@
+---
+
+- name: Idempotency Test - NTP Servers
+  block:
+    - name: Retrieving NTP
+      include_tasks: rtrv_ntp_config.yml
+
+    - name: Checking if the existing configuration is same as the given one
+      set_fact:
+        server_configs: "{{ lookup('template', 'ntp_idemp.j2') }}"
+  when: server_configs is defined

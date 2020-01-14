@@ -1,0 +1,57 @@
+---
+
+########################################################################################
+#     Configurations for the tasks in the NEEntityConfig role                          #
+#       Refer the README for more details on the variables                             #
+#                                                                                      #
+# Sections in the configuration:                                                       #
+# - default_template_configs - Required for the                                        #
+#                              edit_default_template_tribptp_service_type task         #
+# - eqpt_operation_mode_configs - Required for the                                     #
+#                                  edit_eqpt_operation_mode task                       #
+# - facility_autotti_configs: - Required for the                                       #
+#                                 edit_facility_autotti_settings task                  #
+########################################################################################
+
+##############################################################################################################################################
+default_template_configs:
+  # Default TRIB template settings
+  trib:
+    service_type: 10GBE_LAN # The service type to be set. Only 10GBE_LAN(as it is) is supported.
+
+##############################################################################################################################################
+eqpt_operation_mode_configs:
+  eqpt: TIM # DON'T MODIFY
+  # Mode to set the operational state to for the TIMs. Supported values are ODUk, ODUk-ODUj, GBE100-ODU4-4i-2ix10V, ODU4-ODL.
+  # The values are case sensitive, i.e., ODUk is accepted and not oduk.
+  mode: ODUk
+  # This is the mapping required for setting the operational state of the AIDs of each Node(TID) to the given mode.
+  # Here the TID of the Node is mapped to the list of AIDs on the Node.
+  # If an NE is included in the host group then it is mandatory to provide a mapping corresponding to it in the node_to_aid_mapping section.
+  # The value for the AID needs to be in uppercase - 1-A-1-1 and not 1-a-1-1
+  node_to_aid_mapping:
+    "XTC286":
+      - 1-A-5-3
+      - 1-A-5-1
+
+##############################################################################################################################################
+facility_autotti_settings_configs:
+    facility: ODU4 # And OTU4, ODU2e are supported. These are case sensitive. ODU4 and not odu4, OTU4 and not otu4, ODU2e and not odu2e.
+    autotti: ENABLED # Or DISABLED
+    # This is the mapping required for enabling (or) disabling AUTOTTI of the trib AIDs of each Node(TID).
+    # Here the TID of the Node is mapped to the list of trib AIDs on the Node.
+    # If an NE is included in the host group then it is mandatory to provide a mapping corresponding to it in the node_to_aid_mapping section.
+    # The value for the AID needs to be in uppercase - 1-A-1-T1-1 and not 1-a-1-t1-1
+    node_to_aid_mapping:
+      "XTC286":
+        - 1-A-1-T1-1
+        - 1-A-5-T1-1
+############################################################################
+enable_lc_configs: 
+    # This is the mapping required for enabling LC of the AIDs of each Node(TID).
+    # Here the TID of the Node is mapped to the list of AIDs on the Node.
+    # If an NE is included in the host group then it is mandatory to provide a mapping corresponding to it in the node_to_aid_mapping section.
+    # The value for the AID needs to be in uppercase - 1-A-1-1 and not 1-a-1-1
+    node_to_aid_mapping:
+      "XTC284":
+        - 1-A-1-1

@@ -1,0 +1,12 @@
+{%- set xcon_not_presnt = [] -%}
+{%- for aid, reason in xcon_list.items() -%}
+    {%- if reason | string == 'xcon_required' -%}
+        {# 1-A-1-7 to 1-A-1-7T-1 #}
+        {%- set c_aid = aid[:-1] + 'T' + aid[-1] + '-1' -%}
+        {%- set mykey = "RETRIEVE CROSS-CONNECT FOR %s-ODU2e#1,%s-ODU2e#2"| format(c_aid,c_aid) -%}
+        {%- if xcon_retrieve_res[mykey].result is defined and xcon_retrieve_res[mykey].result.Description is defined and xcon_retrieve_res[mykey].result.Description == "INPUT, SPECIFIED OBJECT ENTITY DOES NOT EXIST" -%}
+            {%- set dummy = xcon_not_presnt.append(aid) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- xcon_not_presnt -}}

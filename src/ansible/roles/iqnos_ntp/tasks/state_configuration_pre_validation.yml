@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (state_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "state_configs is not defined" 
+  when: state_configs is not defined
+
+- name: Validating the state configs
+  infn_cfg_validator:
+    what_is_being_validated: "NTP State Configurations - state_configs"
+    configs: "{{ state_configs }}"
+    schema: "{{ lookup('file', 'ntp_state_schema.json') | from_json | string }}"
+  register: state_validation_res
+  changed_when: false
+  failed_when: not state_validation_res.validated

@@ -1,0 +1,23 @@
+# You can add as many FTP server groups here and use it across the playbooks
+# By default SERVER_1 is used for DB backup and SERVER_2 is used for SW download inside playbooks 
+# By default SERVER_1 and SERVER_2 will use SFTP protocol 
+# If you want to use only one ftp/sftp server then can remove secondary option 
+# Note : 
+#   'protocol' should be same for both the server while using configuration for DB/SW operation
+#    This file is not validated before running , please edit carefully 
+ftp_server:
+  SERVER_1:
+    ipaddress  : 10.220.5.39
+    username   : root
+    password   : password
+    protocol   : sftp
+  SERVER_2:
+    ipaddress  : 10.220.0.234
+    username   : sftplogin
+    password   : password
+    protocol   : sftp 
+  CERT_SERVER:
+    ipaddress : 10.220.73.152
+    username  : infinera
+    password  : password
+    protocol  : sftp

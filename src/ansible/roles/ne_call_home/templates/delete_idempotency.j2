@@ -1,0 +1,9 @@
+{%- set to_delete = [] -%}
+{%- set retrieval_result = rtrv_ne_call_home_res["RETRIEVE NETCONFCALLHOME"].result -%}
+{%- set retrieval_keys = retrieval_result.keys() -%}
+{%- for identifier in ne_call_home_configs.delete -%}
+  {%- if identifier in retrieval_keys -%}
+    {%- set dummy = to_delete.append(identifier) -%}
+  {%- endif -%}
+{%- endfor -%}
+{{- to_delete -}}

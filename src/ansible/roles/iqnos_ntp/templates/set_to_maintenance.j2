@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in set_maintenance_configs.identifiers -%}
+    {%- set cmd = "RMV-NTP::%s:%s;" | format(identifier, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"secondary_state": "MT"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

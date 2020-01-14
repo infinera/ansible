@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving Default Template Settings for TRIBPTP
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_default_template_tribptp.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_dflt_tmplt_tribptp_res
+  changed_when: false
+  failed_when: rtrv_dflt_tmplt_tribptp_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ default_template_mapper.trib }}"
+    tl1_response: "{{ rtrv_dflt_tmplt_tribptp_res }}"
+  register: mapped_rtrv_res
+  when:
+    - (default_template_mapper | default({})).trib is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_dflt_tmplt_tribptp_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%} "

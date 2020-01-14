@@ -1,0 +1,13 @@
+---
+
+- name: Change  user passwd 
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'change_passwd.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: change_passwd_res
+  changed_when: change_passwd_res.status == 'SUCCESS' 
+  failed_when: change_passwd_res.status == 'FAILURE'
+
+ 

@@ -1,0 +1,11 @@
+{%- set ret_val = {} -%}
+{%- if "ODUk" in xcon_list[item.key] -%}
+    {%- set dummy = ret_val.update({item.key: {"msg": "enable_lc task failed as TIM Operational mode is not ODUk-ODUj", "status": "FAILURE"}}) -%}
+{%- elif "NO OPERATIONS" in xcon_list[item.key] -%}
+    {%- set dummy = ret_val.update({item.key: {"status": "NO OPERATIONS NEED TO BE PERFORMED AS SYSTEM IS ALREADY CONFIGURED WITH INTENDED INPUT"}}) -%}
+{%- elif "FACILITIES DO NOT EXIST" in xcon_list[item.key] -%}
+    {%- set dummy = ret_val.update({item.key: {"msg":"enable_lc task failed as TOM is not present in the TIM", "status": "FAILURE"}}) -%}
+{%- else -%}
+    {%- set dummy = ret_val.update({item.key: {"result": item.value, "status": "SUCCESS"}}) -%}
+{%- endif -%}
+{{- ret_val -}}

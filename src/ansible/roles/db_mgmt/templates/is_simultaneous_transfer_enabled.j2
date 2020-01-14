@@ -1,0 +1,6 @@
+{# Return true if sumultaneous transfer is enabled #}
+{%- if rtrv_ftp_info_res["RETRIEVE FXFR"].result["Component-0"].Parameters.SIMULTXFR == "true" -%}
+    {{- true -}}
+{%- else -%}
+    {{- false -}}
+{%- endif -%}

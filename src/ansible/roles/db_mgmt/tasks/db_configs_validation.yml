@@ -1,0 +1,14 @@
+---
+
+- name: Fail if input configurations (db_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "db_configs is not defined" 
+  when: db_configs is not defined
+
+- name: Validating the Database configs
+  infn_cfg_validator:
+    what_is_being_validated: "Database Image Management Configurations - db_configs"
+    configs: "{{ db_configs }}"
+    schema: "{{ lookup('file', 'db_configs_schema.json') | from_json | string }}"
+  register: db_configs_validation_res
+  failed_when: not db_configs_validation_res.validated

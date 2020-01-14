@@ -1,0 +1,12 @@
+{%- macro chk_for_idmp() -%}
+    {%- set existing_auth = auth_rtrv_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters.AUTHPOLICY -%}
+    {%- if auth_configs.auth_policy is defined -%}
+        {%- if auth_configs.auth_policy | lower == existing_auth | lower -%}
+            {%- set new_auth_cfg = {} -%}
+        {%- else -%}
+            {%- set new_auth_cfg = auth_configs -%}
+        {%- endif -%}
+    {%- endif -%}
+    {{- new_auth_cfg -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

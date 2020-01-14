@@ -1,0 +1,5 @@
+---
+
+ssh_mapper:
+  SSHFINGERPRINT: ssh_finger_print
+  SSHPUBLICKEY: ssh_public_key

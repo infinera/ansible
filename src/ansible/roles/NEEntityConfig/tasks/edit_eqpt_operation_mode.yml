@@ -1,0 +1,77 @@
+---
+
+- name: Validating Operation State Configs
+  include_tasks: eqpt_operation_mode_configs_validation.yml
+
+- name: Retrieving "{{ eqpt_operation_mode_configs.eqpt }}"
+  include_tasks: retrieve_eqpt.yml
+
+- name: Checking if the retrieved eqpt. is 1-100GX
+  set_fact:
+    eqpt_check: "{{ lookup('template', 'check_eqpt_type.j2') }}"
+
+- name: Performing Operation Mode change for the below 1-100GX TIM(s)
+  debug:
+    msg: '{{ eqpt_check["1-100GX_AIDs"] }}'
+
+- name: Checking if the operation mode is same as the one in the Input
+  set_fact:
+    oprmode_configs: "{{ lookup('template', 'edit_eqpt_operation_mode_idempotency.j2') }}"
+
+- name: "{{ 'Changing Operation Mode for ' + eqpt_operation_mode_configs.eqpt }}"
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'edit_eqpt_operation_mode.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: edit_eqpt_operation_mode_res
+  changed_when: edit_eqpt_operation_mode_res.status == "SUCCESS"
+  failed_when: edit_eqpt_operation_mode_res.status == "FAILURE"
+
+- name: Retrieving "{{ oprmode_configs.eqpt }}" and Checking if Operation Mode Status is Active - Failing Otherwise (Retrying 50 times with a delay of 60 seconds in between each retry)
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: '{%- set command_ip_map = {} -%}{%- set cmd = "RTRV-EQPT:%s:%s:CTAG::%s;" | format(TID, item, oprmode_configs.eqpt) -%}{%- set dummy = command_ip_map.update({cmd: {}}) -%}{{- command_ip_map -}}'
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  until: "{{ lookup('template', 'check_eqpt_oprmodestat.j2') }}"
+  register: chk_opr_mode_stat_res
+  retries: 50 # NE takes around 28 mins, Increase no. of the retries if NE take more time to change
+  delay: 60
+  when: edit_eqpt_operation_mode_res["EDIT EQUIPMENT FOR " + item | string].status == "SUCCESS"
+  with_items: "{{ oprmode_configs.node_to_aid_mapping[TID] }}"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ eqpt_mapper }}"
+    tl1_response: "{{ item }}"
+  register: mapped_chk_opr_mode_stat_res
+  when: edit_eqpt_operation_mode_res.status == "SUCCESS"
+  with_items: "{{ chk_opr_mode_stat_res.results }}"
+
+- name: Result of the retrieval
+  debug:
+    msg: "{{ item }}"
+  when: edit_eqpt_operation_mode_res.status == "SUCCESS"
+  with_items: "{{ mapped_chk_opr_mode_stat_res.results }}"
+
+- name: "{{ 'Changing Service State for ' + eqpt_operation_mode_configs.eqpt + ' to In Service' }}"
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'edit_eqpt_service_state.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: edit_eqpt_service_state_res
+  changed_when: edit_eqpt_service_state_res.status == "SUCCESS"
+  failed_when: edit_eqpt_service_state_res.status == "FAILURE"
+
+- name: Operation Mode Change Status
+  set_fact:
+    oprmode_change_status: "{{ lookup('template', 'oprmode_change_status.j2') }}"
+
+- name: Summary of Operation Mode Change
+  debug:
+    msg: "{{ item }}"
+  failed_when: item.value.status == "FAILURE"
+  changed_when: item.value.status == "SUCCESS"
+  with_items: "{{ oprmode_change_status | dict2items }}"

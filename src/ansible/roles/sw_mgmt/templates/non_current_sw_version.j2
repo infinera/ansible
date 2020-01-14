@@ -1,0 +1,14 @@
+{%- set sw_info = rtrv_sw_info_res["RETRIEVE RFILE"].result -%}
+{%- set backup_names = [] -%}
+{%- for key, value in sw_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE != "Current" -%}
+            {{- backup_names.append(value.Parameters.FILE) -}}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- if (backup_names | length == 0) -%}
+    {{- '' -}}
+{%- else -%}
+    {{- backup_names[0]  -}}
+{%- endif -%}

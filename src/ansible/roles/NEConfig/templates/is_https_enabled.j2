@@ -1,0 +1,7 @@
+{# Template returns true if existing HTTPS setting is enabled #}
+{%- set existing_https_setting = rtrv_sec_attr_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters.HTTPS -%}
+{%- if existing_https_setting == "true" -%}
+    {{- true -}}
+{%- else -%}
+    {{- false -}}
+{%- endif -%}

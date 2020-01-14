@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in unlock_configs.identifiers -%}
+    {%- set cmd = "ED-NTP::%s:%s::::IS;" | format(identifier, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"primary_state": "IS"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

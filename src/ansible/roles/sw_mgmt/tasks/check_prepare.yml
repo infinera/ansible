@@ -1,0 +1,30 @@
+---
+
+- name: Retrieving System Infromation to Check Prepare Upgrade Status
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'get-sys.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: chk_prep_sw_up_res
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ system_information_mapper }}"
+    tl1_response: "{{ chk_prep_sw_up_res }}"
+  register: mapped_chk_prep_sw_up_res
+  when:
+    - system_information_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_chk_prep_sw_up_res.skipped | default(false) -%}{{- chk_prep_sw_up_res -}}{%- else -%}{{- mapped_chk_prep_sw_up_res -}}{%- endif -%}"
+
+- name: Set fact - chk_prep_sw_up_status
+  set_fact:
+    chk_prep_sw_up_status: '{{ chk_prep_sw_up_res["RETRIEVE SYS"].result["Component-0"].Parameters.UPGRADESTAT }}'
+
+- name: Summary of Prepare Upgrade
+  debug:
+    msg: "{{ lookup('template', 'prepare_summary.j2') }}"
+  failed_when: chk_prep_sw_up_status != 'Success'

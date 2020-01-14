@@ -1,0 +1,21 @@
+{%- set ret_val = {} -%}
+{%- set odu4_result_key = "RETRIEVE ODU4 FOR %s" -%}
+{%- set otu4_result_key = "RETRIEVE OTU4 FOR %s" -%}
+{%- set odu4_ret_val = {} -%}
+{%- for aid in enable_lc_configs.node_to_aid_mapping[TID] -%}
+    {%- set c_aid = aid[:-1] + 'T' + aid[-1] + '-1' -%}
+    {%- set fmt_res_key = odu4_result_key | format(c_aid) -%}
+    {%- if rtrv_odu4_res[fmt_res_key] is defined and rtrv_odu4_res[fmt_res_key].result is defined -%}
+        {%- set odu4_modes = {"facility_monitoring_mode": rtrv_odu4_res[fmt_res_key].result[c_aid].Parameters.FACMONMD, "service_mode": rtrv_odu4_res[fmt_res_key].result[c_aid].Parameters.SM} -%}
+    {%- else -%}
+        {%- set odu4_modes = {} -%}
+    {%- endif -%}
+    {%- set fmt_res_key = otu4_result_key | format(c_aid) -%}
+    {%- if rtrv_otu4_res[fmt_res_key] is defined and rtrv_otu4_res[fmt_res_key].result is defined -%}
+        {%- set otu4_modes = {"facility_monitoring_mode": rtrv_otu4_res[fmt_res_key].result[c_aid].Parameters.FACMONMD, "service_mode": rtrv_otu4_res[fmt_res_key].result[c_aid].Parameters.SM} -%}
+    {%- else -%}
+        {%- set otu4_modes = {} -%}
+    {%- endif -%}
+    {%- set dummy = ret_val.update({aid: {"ODU4": odu4_modes, "OTU4": otu4_modes}}) -%}
+{%- endfor -%}
+{{- ret_val -}}

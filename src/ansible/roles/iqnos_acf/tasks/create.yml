@@ -1,0 +1,17 @@
+---
+
+- name: Creating Access Control Filters
+  block:
+    - name: Validating the Access Control Filters configs
+      include_tasks: acf_configs_validation.yml
+
+    - name: Creating Access Control Filters
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'create.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: create_acf_res
+      changed_when: create_acf_res.status == 'SUCCESS' or create_acf_res.status == 'PARTIAL'
+      failed_when: create_acf_res.status == 'FAILURE'
+  when: (acf_configs | default({})).create is defined

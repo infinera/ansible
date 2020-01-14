@@ -1,0 +1,38 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to SSH Key Regeneration. Please refer roles/security/README.md
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ mapper_file | default('group_vars/ssh_mapper.yml') }}"
+  vars:
+    NE_IP: "{{ ne_ip | default(hostvars[inventory_hostname]['ansible_host']) }}"
+    NE_User: "{{ ne_user | default(hostvars[inventory_hostname]['ansible_user']) }}"
+    NE_Pwd: "{{ ne_pwd | default(hostvars[inventory_hostname]['ansible_password']) }}"
+    TID: "{{ hostvars[inventory_hostname]['tid'] | default('') }}"
+
+### End Copy ###   
+
+  tasks:
+    
+    # To Retrieve the existing SSH fingerprint & public key
+    - import_role:
+        name: security
+      vars:
+        task_name: retrieve_ssh_keys
+      tags: retrieve
+    
+    # To Regenerate SSH Keys in the Network Element
+    - import_role:
+        name: security
+      vars:
+        task_name: ssh_key_regen
+      tags: regen
+
+    

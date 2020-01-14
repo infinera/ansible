@@ -1,0 +1,125 @@
+{
+    "title": "Database Configs.",
+    "description": "The schema for the Database management tasks",
+    "type": "object",
+    "properties": {
+        "check_backup_retries": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "check_backup_delay": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "restore_pause": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "backup": {
+            "description": "Backup DB configurations",
+            "$ref": "#/definitions/backup_restore"
+        },
+        "restore": {
+            "description": "Restore DB configuration",
+            "$ref": "#/definitions/backup_restore"
+        },
+        "schedule": {
+            "type": "object",
+            "$ref": "#/definitions/schedule"
+        },
+        "cleanup": {
+            "type": "object",
+            "$ref": "#/definitions/file_mapping"
+        },
+        "restore_local": {
+            "type": "object",
+            "$ref": "#/definitions/file_mapping"
+        }
+
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "backup_restore": {
+            "description": "The structure of Backup/Restore DB configurations",
+            "type": "object",
+            "properties": {
+                "primary_ftp_server": {
+                    "type": "object"
+                },
+                "primary_path": {
+                    "type": "string"
+                },
+                "secondary_ftp_server": {
+                    "type": "object"
+                },
+                "secondary_path": {
+                    "type": "string"
+                },
+                "simultaneous": {
+                    "type": "boolean"
+                },
+                "overwrite": {
+                    "type": "boolean"
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "file_mapping": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "required": [
+                "primary_ftp_server",
+                "primary_path",
+                "run_id"
+            ],
+            "additionalProperties": false
+        },
+        "schedule": {
+            "title": "Schedule Time",
+            "description": "The schema for the scheduled time of upload",
+            "type": "object",
+            "properties": {
+                "interval": {
+                    "description": "Interval of time between the scheduled backups",
+                    "type": "string",
+                    "pattern": "(?i)^(daily|weekly)$"
+                },
+                "day": {
+                    "description": "Day of the week to start the backup",
+                    "type": "string",
+                    "pattern": "(?i)^(monday|tuesday|wednesday|thursday|friday|saturday|sunday)$"
+                },
+                "time": {
+                    "description": "Starting time of the backup in HH:MM; 24 hr clock",
+                    "type": "string",
+                    "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):(00|15|30|45)$"
+                }
+            },
+            "required": [
+                "interval",
+                "time"
+            ],
+            "additionalProperties": false
+        },
+        "file_mapping": {
+            "title": "file_mapping",
+            "description": "The schema for the file_mapping",
+            "type": "object",
+            "properties": {
+                "run_id": {
+                    "type": "string"
+                },
+                "file_mapping": {
+                    "description": "Interval of time between the scheduled backups",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "file_mapping"
+                ],
+            "additionalProperties": false
+        }
+    }
+}

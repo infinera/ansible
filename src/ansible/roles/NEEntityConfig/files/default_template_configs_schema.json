@@ -1,0 +1,28 @@
+{
+    "title": "Default template configurations",
+    "description": "The schema for Default template configs",
+    "type": "object",
+    "properties": {
+        "trib": {
+            "type": "object",
+            "$ref": "#/definitions/TRIB"
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "TRIB": {
+            "description": "Default template TRIB configurations",
+            "type": "object",
+            "properties": {
+                "service_type": {
+                    "type": "string",
+                    "enum": ["10GBE_LAN"]
+                }
+            },
+            "required": [
+                "service_type"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

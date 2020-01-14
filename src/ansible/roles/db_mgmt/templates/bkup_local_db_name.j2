@@ -1,0 +1,8 @@
+{%- set command_ip_map = {} -%}
+{%- for key, value in imgs_after_local_backup.iteritems() -%}
+    {%- if key not in imgs_before_local_backup-%}
+        {%- set dummy = command_ip_map.update({key: value}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- set dummy = command_ip_map.update({'status': 'SUCCESS'}) -%}
+{{- command_ip_map -}}

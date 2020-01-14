@@ -1,0 +1,21 @@
+---
+
+- name: Validating the call home configs
+  include_tasks: validate.yml
+
+- name: Retrieving Call Home Settings
+  include_tasks: retrieve.yml
+
+- name: Comparing against the existing inputs
+  set_fact:
+    configs_to_delete: "{{ lookup('template', 'delete_idempotency.j2') }}"
+
+- name: Deleting Call Home Settings
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'delete.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: delete_ne_call_home_res
+  changed_when: delete_ne_call_home_res.status == 'SUCCESS' or delete_ne_call_home_res.status == 'PARTIAL'
+  failed_when: delete_ne_call_home_res.status == 'FAILURE'

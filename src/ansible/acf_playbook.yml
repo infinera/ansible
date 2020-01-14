@@ -1,0 +1,62 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to Access Control Filters Configurations. Please refer roles/iqnos_acf/README.md
+# For input configurations please refer/edit group_vars/acf_config.yml
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ cfg_file | default('group_vars/acf_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/acf_mapper.yml') }}"
+  vars:
+     NE_IP: "{{ ne_ip|default (hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ne_user|default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd|default (hostvars[inventory_hostname]['ansible_password']) }}"
+
+### End Copy ###   
+
+  tasks:
+
+    # To Retrieve the access control filters from the Network Element. In case there are no access control filters then there will be a message indicating it.
+    - import_role:
+        name: iqnos_acf
+      vars:
+        task_name: retrieve
+      tags: retrieve
+
+    # To Create access control filters with the given specification
+    # Please refer/edit group_vars/acf_config.yml - create
+    - import_role:
+        name: iqnos_acf
+      vars:
+        task_name: create
+      tags: create
+
+    # To Delete the access control filters existing on the Network Element. Task fails in case there are no filters configured that are going to be deleted
+    # Please refer/edit group_vars/acf_config.yml - delete
+    - import_role:
+        name: iqnos_acf
+      vars:
+        task_name: delete
+      tags: delete
+
+    # To Clear the access control filters' counters
+    - import_role:
+        name: iqnos_acf
+      vars:
+        task_name: clear
+      tags: clear
+
+
+    # To Validate the given access filter configurations against a JSON schema
+    # Please refer/edit group_vars/acf_config.yml
+    - import_role:
+        name: iqnos_acf
+      vars:
+        task_name: acf_configs_validation
+      tags: validate 

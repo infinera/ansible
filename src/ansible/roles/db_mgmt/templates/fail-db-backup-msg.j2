@@ -1,0 +1,15 @@
+{%- set fail_msg = "DB Image Backup was not successful. Reason : " -%}
+{%- set res = chk_db_bk_res["RETRIEVE FXFR"].result["Component-0"].Parameters -%}
+    {%- if db_configs.backup.simultaneous is defined and db_configs.backup.simultaneous -%}
+        {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" -%}
+            {%- set fail_msg = fail_msg + "Backup status on Primary Server - " + res.LASTXFRSTATE_PRI  -%}
+        {%- endif -%}
+        {%- if res.LASTXFRSTATE_SEC | upper != "SUCCEEDED" -%}
+            {%- set fail_msg = fail_msg + "  Backup status on Secondary Server - " + res.LASTXFRSTATE_SEC -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- if res.LASTXFRSTATE_PRI | upper != "SUCCEEDED" -%}
+            {%- set fail_msg = fail_msg + "Backup on Primary Server - " +res.LASTXFRSTATE_PRI -%}
+        {%- endif -%}
+    {%- endif -%}
+{{- fail_msg -}}

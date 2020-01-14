@@ -1,0 +1,28 @@
+# Task to configure Radius Authentication Type Setting in Network Element.
+# Authentication settings comes with Local Only authentication by default.
+# Below task configures the Auth-type settings to RADIUS only. After successful setting
+# For every NE request, it gets authenticated via configured RADIUS servers.
+
+
+- name: Configuring the RADIUS Authentication Policy
+  block:
+    - name: Validating the authentication policy
+      include_tasks: auth_policy_pre_validation.yml
+
+    - name: Retrieving the Authentication Policy
+      include_tasks: auth_policy_retrieve.yml
+
+    - name: Checking if the existing authentication policy is same as the given one
+      set_fact:
+        auth_configs: "{{ lookup('template', 'auth_policy_idempotency.j2') }}"
+
+    - name: Change RADIUS Authentication Policy settings
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'auth_policy_configuration.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: auth_ed_res
+      changed_when: auth_ed_res.status == 'SUCCESS'
+      failed_when: auth_ed_res.status == 'FAILURE'
+  when: auth_configs is defined

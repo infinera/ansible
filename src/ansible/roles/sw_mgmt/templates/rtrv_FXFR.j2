@@ -1,0 +1,5 @@
+{%- set command_ip_map = {} -%}
+    {%- set cmd = 'RTRV-FXFR:%s::CTAG:::FTPFILETYPE=SWDL;' | format(TID) -%}
+    {%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{{- command_ip_map -}}
+        

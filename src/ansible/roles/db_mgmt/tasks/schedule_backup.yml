@@ -1,0 +1,27 @@
+---
+
+- name: Scheduling Database Backup
+  block:
+
+    - name: Validating the Database configs
+      include_tasks: db_configs_validation.yml
+
+    - name: Updating FTP details
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'ed_FXFR.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: ed_fxfr_sched_bkup_res
+      changed_when: ed_fxfr_sched_bkup_res.status == 'SUCCESS'
+      failed_when: ed_fxfr_sched_bkup_res.status == 'FAILURE'
+
+    - name: Scheduling
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'schedule_backup.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: sched_bkup_res
+      changed_when: sched_bkup_res.status == 'SUCCESS'
+      failed_when: sched_bkup_res.status == 'FAILURE'

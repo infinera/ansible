@@ -1,0 +1,19 @@
+---
+
+- name: Retrieving Software file Information
+  include_tasks: retrieve_sw_info.yml
+
+- name: Fail if SW image is not present for Upgrade , Skip the task otherwise
+  fail: 
+    msg: "SW Image not present for Upgrade"
+  when: non_current_sw_version == ''
+
+- name: Cancelling Upgrade Preparation
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'cancel_prepare.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: canc_prep_res
+  changed_when: canc_prep_res.status == 'SUCCESS'
+  failed_when: canc_prep_res.status == 'FAILURE'

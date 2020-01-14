@@ -1,0 +1,87 @@
+{
+    "title": "Call Home settings configurations",
+    "description": "The schema for the callhome_configs",
+    "type": "object",
+    "properties": {
+        "configure": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/CallHomeConfiguration"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "delete": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "length": 64
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "invoke": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "length": 64
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "CallHomeConfiguration": {
+            "description": "The DestinationAddress, DestinationPort, TransportProtocol, Identifier, Retry, and Timeout",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "description": "The unique AID for each of the NETCONFCallHomeDestination object",
+                    "type": "string",
+                    "length": 64
+                },
+                "dest_address": {
+                    "description": "The location where the NE is required to dial-out to initiate the NETCONF call home session",
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "format": "ipv4"
+                        },
+                        {
+                            "format": "ipv6"
+                        }
+                    ]
+                },
+                "dest_port": {
+                    "description": "The TCP/IP port to which the NE will initiate & establish the NETCONF call home session",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                "protocol": {
+                    "description": "The protocol that is to be used for the NETCONF call home communication",
+                    "type": "string",
+                    "enum": ["SSH", "TLS"]
+                },
+                "retry_count": {
+                    "description": "The number of times the NE attempts connecting to this NETCONF call-home destination before aborting",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                },
+                "timeout": {
+                    "description": "Connection timeout (expressed in seconds)",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 255
+                }
+            },
+            "required": [
+                "identifier"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

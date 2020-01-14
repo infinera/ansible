@@ -1,0 +1,16 @@
+---
+
+- name: Checking if Revert is successful
+  block:
+    - name: Retrieving the Current Software Image
+      include_tasks: retrieve_sw_info.yml
+    
+    - name: Retrieving the Current Database
+      include_tasks: get_current_db.yml
+
+    - name: Fail if Revert is not successful
+      fail:
+        msg: "Reverting Unsuccessful"
+      when:
+        - prerun_current_sw_version == current_sw_version
+        - prerun_current_db_name == current_db_name

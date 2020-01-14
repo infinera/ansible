@@ -1,0 +1,23 @@
+{%- set command_ip_map = {} -%}
+{%- for certificate_config in conf_cert_configs -%}
+    {%- set app_type = certificate_config.app_type | default("TLS") -%}
+    {%- set label = certificate_config.label | default('') -%}
+    {%- set pass_phrase = certificate_config.pass_phrase | default('') -%}
+    {%- set cert_id = certificate_config.certificate_identifier -%}
+    {%- if certificate_config.node_to_certificate_identifier_mapping is defined -%}
+        {%- if certificate_config.node_to_certificate_identifier_mapping[TID] is defined -%}
+           {%- set cert_id = certificate_config.node_to_certificate_identifier_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+    {%- set shelf_id = node_controller_shelf_identifier -%}
+    {%- set aid = shelf_id | string + '-' + cert_id -%}
+    {%- set uri = certificate_config.server.protocol + "://" + certificate_config.server.username + ':' + certificate_config.server.password + '@' + certificate_config.server.ipaddress + ':/' + certificate_config.path_to_file -%}
+    {%- set label = certificate_config.label | default('') -%}
+    {%- set pass_phrase = certificate_config.pass_phrase | default('') -%}
+    {%- if certificate_config.certificate_type == "LOCAL" -%}
+        {%- set cert_type = "LOCALCERT" -%}
+    {%- endif -%}
+    {%- set cmd = 'ENT-CERT:%s:%s:%s::%s:LABEL=%s,PASSPHRASE=%s,URI="%s",SHELFID=%s,APP=%s;' | format(TID, aid, loop.index, cert_type, label, pass_phrase, uri, shelf_id, app_type) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"certificate_identifier": cert_id, "certificate_type": certificate_config.certificate_type, "label": label, "pass_phrase": pass_phrase, "server": certificate_config.server, "shelf_id": shelf_id}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

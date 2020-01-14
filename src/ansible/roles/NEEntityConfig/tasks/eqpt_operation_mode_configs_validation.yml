@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (eqpt_operation_mode_configs) is not defined
+  fail:
+    msg: "eqpt_operation_mode_configs is not defined"
+  when: eqpt_operation_mode_configs is not defined
+
+- name: Validating equipment operation state configs
+  infn_cfg_validator:
+    what_is_being_validated: "Equipment Operation State Configurations - eqpt_operation_mode_configs"
+    configs: "{{ eqpt_operation_mode_configs }}"
+    schema: "{{ lookup('file', 'files/eqpt_operation_mode_configs_schema.json') | from_json | string }}"
+  register: eqpt_operation_mode_configs_validation_res
+  changed_when: false
+  failed_when: not eqpt_operation_mode_configs_validation_res.validated

@@ -1,0 +1,17 @@
+---
+
+- name: Deleting ACFs
+  block:
+    - name: Retrieving the Access Control Filters
+      include_tasks: retrieve.yml
+
+    - name: Deleting the Access Control Filters
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'delete.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: delete_acf_res
+      changed_when: delete_acf_res.status == 'SUCCESS' or delete_acf_res.status == 'PARTIAL'
+      failed_when: delete_acf_res.status == 'FAILURE'
+  when: (acf_configs | default({})).delete is defined

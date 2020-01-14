@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for name in acf_configs.delete -%}
+    {%- set cmd = "DLT-ACF::%s:%s;" | format(name,loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"name": name}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

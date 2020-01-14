@@ -1,0 +1,60 @@
+---
+
+- name: Initiating Fresh Install
+  block:
+
+    - name: Retrieving Software file Information
+      include_tasks: retrieve_sw_info.yml
+
+    - name: Fail if SW image is not present for Fresh Install , Skip the task otherwise
+      fail: 
+        msg: "SW Image not present for Fresh Install"
+      when: non_current_sw_version == ''
+        
+    - name: Initiating Fresh Install
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'fresh_install.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: sw_img_down_res
+      changed_when: sw_img_down_res.status == 'SUCCESS'
+      failed_when: sw_img_down_res.status == 'FAILURE'
+    
+    - name: Pausing for "{{ sw_configs.fresh_install_wait_time | default(fresh_install_wait_time) }}" minute(s)
+      pause:
+        minutes: "{{ sw_configs.fresh_install_wait_time | default(fresh_install_wait_time) }}"
+
+    - name: Checking if the Network Element is reachable
+      include_tasks: availability.yml
+
+    - name: Retrieving Software Image(s) Information with Existing User Credentials
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{%- set command_ip_map = {} -%}{%- set cmd = 'RTRV-RFILE:%s::CTAG:::TYPE=SW;' | format(TID) -%}{%- set dummy = command_ip_map.update({cmd: {}}) -%}{{- command_ip_map -}}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: chk_rtrv_sw_info_res
+      changed_when: false
+      failed_when: false
+
+    - name: Renaming Raw Response Parameters
+      infn_mapper:
+        mapper: "{{ sw_mapper }}"
+        tl1_response: "{{ chk_rtrv_sw_info_res }}"
+      register: mapped_chk_rtrv_sw_info_res
+      when:
+        - sw_mapper is defined
+
+    - name: Result of the retrieval
+      debug:
+        msg: "{%- if mapped_chk_rtrv_sw_info_res.skipped | default(false) -%}{{- chk_rtrv_sw_info_res -}}{%- else -%}{{- mapped_chk_rtrv_sw_info_res -}}{%- endif -%} "
+
+    - name: Checking if Fresh Install is Successful
+      set_fact:
+        fresh_install_status: "{{ lookup('template', 'fresh_install_status.j2') }}"
+
+    - name: Summary of Fresh Install
+      debug:
+        msg: "{{ fresh_install_status }}"
+      failed_when: fresh_install_status.status == "FAILURE"

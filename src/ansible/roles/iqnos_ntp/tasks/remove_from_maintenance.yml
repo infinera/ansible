@@ -1,0 +1,7 @@
+---
+
+- name: Removing from Maintenance
+  block:
+    - name: Removing from NTP Servers from Maintenance
+      include_tasks: unlock_ntp.yml
+  when: state_configs is defined

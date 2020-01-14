@@ -1,0 +1,27 @@
+---
+
+- name: Setting to Maintenance
+  block:
+    - name: Validating state configurations prior to setting to Maintenance
+      include_tasks: state_configuration_pre_validation.yml
+
+    - name: Unlocking the NTP servers
+      include_tasks: unlock_ntp.yml
+
+    - name: Retrieving configurations prior to setting to Maintenance
+      include_tasks: rtrv_ntp_config.yml
+
+    - name: Checking if the existing configuration is same as the given one
+      set_fact:
+        set_maintenance_configs: "{{ lookup('template', 'set_maintenance_idemp.j2') }}"
+
+    - name: Setting to Maintenance
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'set_to_maintenance.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: ntp_maintenance_res
+      changed_when: ntp_maintenance_res.status == 'SUCCESS' or ntp_maintenance_res.status == 'PARTIAL'
+      failed_when: ntp_maintenance_res.status == 'FAILURE'
+  when: state_configs is defined

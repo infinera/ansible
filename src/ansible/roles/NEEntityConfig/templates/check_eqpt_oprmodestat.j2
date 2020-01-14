@@ -1,0 +1,17 @@
+{%- set ret_val = {"is_eqpt_operational": false} -%}
+{%- set module_result = chk_opr_mode_stat_res["RETRIEVE EQUIPMENT FOR %s" | format(item)] | default(none) -%}
+{%- if module_result is not none -%}
+    {%- if module_result.result is defined and module_result.result[item]["Parameters"] is defined -%}
+        {%- set opr_mode_stat = module_result.result[item]["Parameters"].OPRMODSTAT -%}
+        {%- if opr_mode_stat == "ACT" or opr_mode_stat == "PREPROVISIONED" -%}
+            {%- set dummy = ret_val.update({"is_eqpt_operational": true}) -%}
+        {%- else -%}
+            {%- set dummy = ret_val.update({"is_eqpt_operational": false}) -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set dummy = ret_val.update({"is_eqpt_operational": false}) -%}
+    {%- endif -%}
+{%- else -%}
+    {%- set dummy = ret_val.update({"is_eqpt_operational": false}) -%}
+{%- endif -%}
+{{- ret_val.is_eqpt_operational -}}

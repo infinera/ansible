@@ -1,0 +1,23 @@
+---
+
+- name: Retrieving the existing RADIUS configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'radius_retrieve.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rad_rtrv_res
+  changed_when: false
+  failed_when: rad_rtrv_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ radius_mapper.radius }}"
+    tl1_response: "{{ rad_rtrv_res }}"
+  register: mapped_rad_rtrv_res
+  when:
+    - radius_mapper is defined
+
+- name: Existing RADIUS server configurations
+  debug:
+        msg: "{%- if mapped_rad_rtrv_res.skipped | default(false) -%}{{- rad_rtrv_res -}}{%- else -%}{{- mapped_rad_rtrv_res -}}{%- endif -%} "

@@ -1,0 +1,10 @@
+---
+
+- name: Database Restoration
+  block:
+    - name: Set Restoration type
+      set_fact:
+        opr_type: "restore_local"
+
+    - name: Restore Database
+      include_tasks: restore_task.yml

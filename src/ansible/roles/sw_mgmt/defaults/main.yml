@@ -1,0 +1,27 @@
+---
+
+# The comment after the number indicates what kind of an entity it represents.
+
+# upgrade
+upgrade_wait_time: 30 # Minutes
+
+
+# prepare
+prepare_wait_time: 20 # Minutes
+
+# revert
+revert_wait_time: 15 # Minutes
+
+# download
+download_wait_time: 15 # Minutes
+
+# availability
+availability_timeout: 1 # Seconds
+availability_retries: 5 # Number
+availability_delay: 10 # Seconds
+
+# fresh install
+fresh_install_wait_time: 5 # Minutes
+
+# restart with empty database
+restart_with_emptydb_wait_time: 5 # Minutes

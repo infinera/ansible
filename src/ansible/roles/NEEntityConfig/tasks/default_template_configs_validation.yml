@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (default_template_configs) is not defined
+  fail:
+    msg: "default_template_configs is not defined"
+  when: default_template_configs is not defined
+
+- name: Validating default template configs
+  infn_cfg_validator:
+    what_is_being_validated: "Default Template Configurations - default_template_configs"
+    configs: "{{ default_template_configs }}"
+    schema: "{{ lookup('file', 'files/default_template_configs_schema.json') | from_json | string }}"
+  register: default_template_configs_validation_res
+  changed_when: false
+  failed_when: not default_template_configs_validation_res.validated

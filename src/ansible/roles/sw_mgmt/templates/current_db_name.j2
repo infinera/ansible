@@ -1,0 +1,8 @@
+{%- set db_info = rtrv_db_info_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in db_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE == "Current" -%}
+            {{- value.Parameters.FILE -}}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}

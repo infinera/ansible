@@ -1,0 +1,26 @@
+{%- if chk_db_bk_res is defined and chk_db_bk_res["RETRIEVE FXFR"] is defined -%}
+    {%- set res = chk_db_bk_res["RETRIEVE FXFR"].result["Component-0"]["Parameters"] -%}
+    {%- if db_configs.backup.simultaneous is defined and db_configs.backup.simultaneous -%}
+        {%- if res.LASTXFRSTATE_PRI |upper != "NEVER_STARTED" and res.LASTXFRSTATE_SEC |upper != "NEVER_STARTED"-%}
+            {%- if res.CURRXFRSTATE |upper  == "IDLE" or res.CURRXFRSTATE |upper == "SCHEDULED" -%}
+                {{- true -}}
+            {%- else -%}
+                {{- false -}}
+            {%- endif -%}
+        {%- else -%}
+            {{- false -}}
+        {%- endif -%}
+    {%- else -%}
+        {%- if res.LASTXFRSTATE_PRI |upper != "NEVER_STARTED" -%}
+            {%- if res.CURRXFRSTATE |upper  == "IDLE" or res.CURRXFRSTATE |upper == "SCHEDULED" -%}
+                {{- true -}}
+            {%- else -%}
+                {{- false -}}
+            {%- endif -%}
+        {%- else -%}
+            {{- false -}}
+        {%- endif -%}
+    {%- endif -%}
+{%- else -%}
+    {{- false -}}
+{%- endif -%}

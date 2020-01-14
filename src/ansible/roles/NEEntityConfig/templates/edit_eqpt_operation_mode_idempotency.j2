@@ -1,0 +1,17 @@
+{# Return true for configurations that are idempotent #}
+{%- set result_key = "RETRIEVE EQUIPMENT FOR %s" -%}
+{%- set ret_val = {"eqpt": eqpt_operation_mode_configs.eqpt, "mode": eqpt_operation_mode_configs.mode, "node_to_aid_mapping": []} -%}
+{%- set aids = [] -%}
+{%- set one_hundred_gx_aids = eqpt_check["1-100GX_AIDs"] | list -%}
+{%- for aid in eqpt_operation_mode_configs.node_to_aid_mapping[TID] -%}
+    {%- set fmt_res_key = result_key | format(aid) -%}
+    {%- if rtrv_eqpt_res[fmt_res_key] is defined and rtrv_eqpt_res[fmt_res_key].result is defined -%}
+        {%- if aid in one_hundred_gx_aids -%}
+            {%- if rtrv_eqpt_res[fmt_res_key].result[aid].Parameters.OPRMODE | upper != eqpt_operation_mode_configs.mode | upper -%}
+                {%- set dummy = aids.append(aid) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- set dummy = ret_val.update({"node_to_aid_mapping": {TID: aids}}) -%}
+{{- ret_val -}}

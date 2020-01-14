@@ -1,0 +1,14 @@
+{%- set command_ip_map = {} -%}
+{%- set file_name = 'DB_%s_%s'| format (db_configs[opr_type].run_id,TID) -%}
+    {%- if db_configs[opr_type].file_mapping is defined -%}
+        {%- if db_configs[opr_type].file_mapping[TID] is defined -%}
+            {%- set file_name = db_configs[opr_type].file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set dummy = command_ip_map.update({'db_file_name': file_name}) -%}
+    {%- if opr_type == "restore" -%}
+        {%- set dummy = command_ip_map.update({'primary_ftp_server': db_configs.restore.primary_ftp_server.ipaddress}) -%}
+        {%- set dummy = command_ip_map.update({'primary_path': db_configs.restore.primary_path}) -%}
+    {%- endif -%}
+{%- set dummy = command_ip_map.update({'status': 'SUCCESS'}) -%}
+{{- command_ip_map -}}

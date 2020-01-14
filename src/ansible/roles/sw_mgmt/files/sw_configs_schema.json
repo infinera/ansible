@@ -1,0 +1,76 @@
+{
+    "title": "Software Configs.",
+    "description": "The schema for the Software management tasks",
+    "type": "object",
+    "properties": {
+        "restart_with_emptydb_wait_time": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "revert_wait_time": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "fresh_install_wait_time": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "prepare_wait_time": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "upgrade_wait_time": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "download": {
+            "description": "SW DB download configurations",
+            "$ref": "#/definitions/download"
+        },
+        "revert": {
+            "description": "SW DB Revert configurations",
+            "$ref": "#/definitions/db_file_mapping"
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "download": {
+            "description": "The structure of SW DB configurations",
+            "type": "object",
+            "properties": {
+                "ftp_server": {
+                    "type": "object"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "sw_image_version": {
+                    "type": "string"
+                },
+                "wait_time": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "db_file_mapping": {
+            "title": "db_file_mapping",
+            "description": "The schema for the db_file_mapping",
+            "type": "object",
+            "properties": {
+                "run_id" : {
+                    "type": "string"
+                },
+                "db_file_mapping": {
+                    "description": "db fil mapping for SW revert",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "run_id",
+                "db_file_mapping"
+                ],
+            "additionalProperties": false
+        }
+    }
+}

@@ -1,0 +1,9 @@
+---
+# defaults file for iqnos_radius
+
+# This variable is defined to validate the identifier which is defined in a template(group_vas/iqnos_radius_config.yml).
+
+acceptable_identifiers:
+  - RADSERVER1
+  - RADSERVER2
+  - RADSERVER3

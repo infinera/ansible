@@ -1,0 +1,73 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to setting the service type for default TRIB template. Please refer roles/NEEntityConfig/README.md
+# For input configurations please refer/edit group_vars/neentityconfig_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ###
+- hosts: "{{ host_group }}"
+  connection: local
+  gather_facts: False
+  vars_files:
+    - "{{ cfg_file | default('group_vars/neentityconfig_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/neentityconfig_mapper.yml') }}"
+  vars:
+     NE_IP: "{{ ne_ip|default (hostvars[inventory_hostname]['ansible_host']) }}"
+     NE_User: "{{ne_user|default(hostvars[inventory_hostname]['ansible_user']) }}"
+     NE_Pwd: "{{ ne_pwd|default (hostvars[inventory_hostname]['ansible_password']) }}"
+     TID: "{{ tid | default(hostvars[inventory_hostname]['tid'] | default('')) }}"
+
+### End Copy ###
+
+
+  tasks:
+
+    # To validate the configs
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: validate
+      tags: validate
+
+    # To set the service type for the default TRIB template
+    # Please refer group_vars/neentityconfig_config.yml
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: edit_default_template_tribptp_service_type
+      tags: edit_default_template_tribptp_service_type
+
+    # To retrieve the default TRIB template settings
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: retrieve_default_template_tribptp
+      tags: retrieve_default_template_tribptp
+
+    # To edit the operation mode for TIM
+    # Firstly, the tasks moves the TIM equpiment to OOS(out of service) state and the changes the operation mode
+    # Then the task moves it back to IS(in service) mode
+    # Please refer group_vars/neentityconfig_config.yml
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: edit_eqpt_operation_mode
+      tags: edit_eqpt_operation_mode
+
+    # To change the AUTOTTI settings for the ODU4, OTU4, ODU2e facilities. Either Enable (or) Disable AUTOTTI.
+    # Please refer group_vars/neentityconfig_config.yml
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: edit_facility_autotti_settings
+      tags: edit_facility_autotti_settings
+
+    # Enable LC for neighbor discovery. This task sets the Facility Monitoring Mode to Intrusive for the ODU4, OTU4 facilities
+    # Please refer group_vars/neentityconfig_config.yml
+    - import_role:
+        name: NEEntityConfig
+      vars:
+        task_name: enable_lc
+      tags: enable_lc

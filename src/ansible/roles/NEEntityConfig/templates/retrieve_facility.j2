@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for aid in facility_autotti_settings_configs.node_to_aid_mapping[TID] -%}
+    {%- set cmd = "RTRV-%s:%s:%s:CTAG;" | format(facility_autotti_settings_configs.facility, TID, aid) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"facility" : facility_autotti_settings_configs.facility }}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

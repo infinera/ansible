@@ -1,0 +1,15 @@
+---
+
+- name: Fail if input configurations (certificate_configs) is not defined
+  fail:
+    msg: "certificate_configs is not defined"
+  when: certificate_configs is not defined
+
+- name: Validating the Certificate Configurations
+  infn_cfg_validator:
+    what_is_being_validated: "Certificate Configurations - certificate_configs"
+    configs: "{{ certificate_configs }}"
+    schema: "{{ lookup('file', 'files/certificate_configs_schema.json') | from_json | string }}"
+  register: certificate_configs_validation_res
+  changed_when: false
+  failed_when: not certificate_configs_validation_res.validated

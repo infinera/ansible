@@ -1,0 +1,8 @@
+{%- set ret_val = {} -%}
+{%- set db_info = rtrv_db_img_res["RETRIEVE RFILE"].result -%}
+{%- for key, value in db_info.items() -%}
+    {%- if "Component" in key -%}
+        {%- set dummy = ret_val.update({value.Parameters.FILE: value.Parameters.USAGE}) -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- ret_val -}}

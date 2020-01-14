@@ -1,0 +1,15 @@
+{%- set command_ip_map = {} -%}
+{%- for config in configs_to_apply.to_create -%}
+  {%- set aid = config.identifier -%}
+  {%- set dest_address = config.dest_address | default('') -%}
+  {%- if dest_address | ipv6 -%}
+    {%- set dest_address = '\"' + dest_address + '\"' -%}
+  {%- endif -%}
+  {%- set protocol  = config.protocol | default('') -%}
+  {%- set retry_count = config.retry_count | default('') -%}
+  {%- set timeout = config.timeout | default('') -%}
+  {%- set dest_port = config.dest_port | default('') -%}
+  {%- set cmd = "ENT-NETCONFCALLHOME:%s:%s:%s:::DSTADDR=%s,DSTPORT=%s,RETRYCOUNT=%s,TIMEOUT=%s,TRANSPROTOCOL=%s;" | format(TID, aid, loop.index, dest_address, dest_port, retry_count, timeout, protocol) -%}
+  {%- set dummy = command_ip_map.update({cmd: config}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

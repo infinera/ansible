@@ -1,0 +1,14 @@
+{# Return true for configurations that are idempotent #}
+{%- set result_key = "RETRIEVE %s FOR %s" -%}
+{%- set ret_val = {"facility": facility_autotti_settings_configs.facility, "autotti": facility_autotti_settings_configs.autotti, "node_to_aid_mapping": []} -%}
+{%- set aids = [] -%}
+{%- for aid in facility_autotti_settings_configs.node_to_aid_mapping[TID] -%}
+    {%- set fmt_res_key = result_key | format(facility_autotti_settings_configs.facility | upper, aid) -%}
+    {%- if rtrv_fac_res[fmt_res_key] is defined and rtrv_fac_res[fmt_res_key].result is defined -%}
+        {%- if rtrv_fac_res[fmt_res_key].result[aid].Parameters.AUTOTTI | upper != facility_autotti_settings_configs.autotti | upper -%}
+            {%- set dummy = aids.append(aid) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- set dummy = ret_val.update({"node_to_aid_mapping": {TID: aids}}) -%}
+{{- ret_val -}}

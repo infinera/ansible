@@ -1,0 +1,10 @@
+{%- set command_ip_map = {} -%}
+{%- set file_name = 'DB_%s_%s'| format (db_configs[opr_type].run_id,TID) -%}
+    {%- if db_configs[opr_type].file_mapping is defined -%}
+        {%- if db_configs[opr_type].file_mapping[TID] is defined -%}
+            {%- set file_name = db_configs[opr_type].file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set cmd = 'APPLY:::%s:::FILENAME="file:///%s",OPERTYPE=RESTORE;'| format( range(1, 500) | random, file_name) -%}
+{%- set dummy = command_ip_map.update({cmd: db_configs[opr_type]}) -%}
+{{- command_ip_map -}}

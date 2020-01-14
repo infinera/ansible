@@ -1,0 +1,49 @@
+---
+#RADIUS Configuration template.
+
+
+  # Network Element allows maximum of three Radius servers[RADSERVER1/RADSERVER2/RADSERVER3] to configure.
+  # Below is the sample template to configure the RADIUS servers on the Network Element.
+
+  ########################################################################################
+  #                                                                                      #
+  # identifier        = Indicates which RADIUS server to edit.                           #
+  # ipaddress         = Radius server ip_address/host name                               #
+  # port              = Radius authentication port number.                               #
+  # timeout           = Radius authentication request time out in [seconds].               #
+  # shared_secret_key = Radius shared secret of range 16 to 128 characters.              #
+  # max_attempts      = Maximum number of attempts per radius server.                    #
+  #                                                                                      #
+  ########################################################################################
+server_configs:
+  server1:
+
+    identifier       : RADSERVER1
+    port             : 1814
+
+  server2:
+
+    identifier       : RADSERVER2
+    ipaddress        : 10.220.165.120
+    port             : 1816
+    timeout          : 10
+    shared_secret_key: secretkey1secretkey1
+    max_attempts     : 3
+
+  server3:
+
+    identifier       : RADSERVER3
+    ipaddress        : 1.3.34.5
+    port             : 1818
+    timeout          : 10
+    shared_secret_key: secretkey1secretkey1
+    max_attempts     : 3
+
+#Below are the possible options can be configured as a RADIUS authentication policy:
+# LOCAL  - Users are authenticated according to the Local settings on the network element.
+# RADIUS - Users are authenticated according to the settings on the RADIUS servers that are configured for the network element.
+# RFL    - Users are authenticated first according to the settings on the RADIUS servers.
+#          If no RADIUS server can be contacted,  users are authenticated according to the local settings on the network element.
+
+auth_configs:
+  auth_policy: LOCAL

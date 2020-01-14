@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for aid in oprmode_configs.node_to_aid_mapping[TID] -%}
+    {%- set cmd = "ED-EQPT:%s:%s:%s::%s:OPRMODE=%s:OOS;" | format(TID, aid, loop.index, oprmode_configs.eqpt, oprmode_configs.mode) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"operation_mode": oprmode_configs.mode, "equipment": oprmode_configs.eqpt, "primary_state": "OOS"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

@@ -1,0 +1,6 @@
+{%- set command_ip_map = {} -%}
+{%- for identifier in lock_configs.identifiers -%}
+    {%- set cmd = "ED-NTP::%s:%s::::OOS;" | format(identifier, loop.index) -%}
+    {%- set dummy = command_ip_map.update({cmd: {"primary_state": "OOS"}}) -%}
+{%- endfor -%}
+{{- command_ip_map -}}

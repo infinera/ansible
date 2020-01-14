@@ -1,0 +1,24 @@
+---
+
+- name: Enabling Alarm Reporting
+  block:
+    - name: Validating alarm reporting configurations
+      include_tasks: alarm_configuration_pre_validation.yml
+
+    - name: Retrieving configurations prior to Enabling Alarm Reporting
+      include_tasks: rtrv_alarm_reporting.yml
+
+    - name: Checking if the existing configuration is same as the given one
+      set_fact:
+        enable_arc_configs: "{{ lookup('template', 'enable_alarm_reporting_idemp.j2') }}"
+
+    - name: Enabling Alarm Reporting
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'enable_alarm_reporting.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: enable_arc_res
+      changed_when: enable_arc_res.status == 'SUCCESS'
+      failed_when: enable_arc_res.status == 'FAILURE'
+  when: alarm_configs is defined

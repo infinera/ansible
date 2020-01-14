@@ -1,0 +1,9 @@
+---
+
+- name: Retrieving the current Software Image information
+  include_tasks: retrieve_sw_info.yml
+
+- name: Stopping execution if the Software Upgrade has failed
+  fail:
+    msg: "Failed Software Upgrade"
+  when: prerun_current_sw_version in current_sw_version

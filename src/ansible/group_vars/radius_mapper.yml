@@ -1,0 +1,9 @@
+radius_mapper:
+  radius:
+    RADIPADDR: ipaddress
+    RADAUTHPORT: port
+    RADARTMOUT: timeout
+    MAXATMPTS: max_attempts
+    RADSS: shared_secret_key
+  auth_policy:
+    AUTHPOLICY: authentication_policy

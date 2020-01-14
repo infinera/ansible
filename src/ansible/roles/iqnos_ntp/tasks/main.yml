@@ -1,0 +1,4 @@
+---
+# tasks file for iqnos_ntp_tl1
+- name: "{{ task_name }}"
+  include_tasks: "{{ task_name }}.yml"

@@ -1,0 +1,110 @@
+---
+
+# Requires ansible 1.8+
+# This playbook is intended to help in performing the tasks related to Sw Mgmt.. Please refer roles/sw_mgmt/README.md
+# For input configurations please refer Or edit group_vars/sw_mgmt_config.yml
+
+# While creating a new playbook, please copy the sections between ### Start Copy ### and ### End Copy ### as they are mandatory
+
+### Start Copy ### 
+- hosts: "{{ host_group }}"
+  serial: "{{ batch_size | default(3) }}" # 3 Nodes are managed by default at a time
+  connection: local
+  gather_facts: False
+  vars_files: 
+    - "{{ cfg_file | default('group_vars/sw_mgmt_config.yml') }}"
+    - "{{ mapper_file | default('group_vars/sw_mgmt_mapper.yml') }}"
+    - "{{ ftp_file | default('group_vars/ftp_server.yml') }}"
+
+  vars:
+    NE_IP: "{{ ne_ip|default (hostvars[inventory_hostname]['ansible_host']) }}"
+    NE_User: "{{ne_user|default(hostvars[inventory_hostname]['ansible_user']) }}"
+    NE_Pwd: "{{ ne_pwd|default (hostvars[inventory_hostname]['ansible_password']) }}"
+    TID: "{{ hostvars[inventory_hostname]['tid']| default('') }}"
+
+### End Copy ###
+
+  tasks:
+
+    # To Retrieve SW images information from NE
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: retrieve_sw_info
+      tags: retrieve
+
+    # To delete downloded SW image from NE   
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: cleanup
+      tags: cleanup
+
+    # To lock standby controller card , this task needs to be run before fresh_install,revert,restart_with_emptydb
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: lock_stby
+      tags: lock_stby
+    
+    # To unlock standby controller card
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: unlock_stby
+      tags: unlock_stby
+
+    # To restart NE with emptydb with current SW image 
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: restart_with_emptydb
+      tags: restart_with_emptydb
+    
+    # To download SW image from FTP/SFTP server to NE 
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: download
+      tags: download
+
+    # To start 'prepare_for_upgrade' operation on NE after downloading SW image 
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: prepare
+      tags: prepare_for_upgrade
+
+    # To cancel 'prepare_for_upgrade' operation on NE  
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: cancel_prepare
+      tags: cancel_prepare_for_upgrade
+
+    # To fresh install SW image NE after downloading it to NE (Please make sure you have DB backup for current release before running this task )  
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: fresh_install
+      tags: fresh_install
+
+    # To upgrade to new SW image NE after downloading it to NE (Please make sure you have DB backup for current release before running this task )  
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: upgrade
+      tags: upgrade
+
+    # To revert to older SW image after upgrading NE (Please make sure you have DB backup for current release before running this task )  
+    - import_role:
+        name: sw_mgmt
+      vars:
+        task_name: revert
+      tags: revert
+    
+
+        
+        
+
+    

@@ -1,0 +1,17 @@
+---
+
+- name: Retrieving Backup Schedule
+  include_tasks: retrieve_backup_schedule.yml
+
+- name: Checking if existing backup schedule is same as the input
+  set_fact:
+    need_to_unsched: "{{ lookup('template', 'is_backup_scheduled.j2') | bool }}"
+
+- name: Unscheduling Backup
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'unschedule_backup.j2') }}"
+    output: "json"
+  register: unsched_res
+  changed_when: unsched_res.status == 'SUCCESS'
+  failed_when: unsched_res.status == 'FAILURE'

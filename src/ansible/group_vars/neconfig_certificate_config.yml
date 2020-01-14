@@ -1,0 +1,82 @@
+---
+
+####################################################################
+#       Configurations for the tasks in the NEConfig role          #
+#       Refer the README for more details on the variables         #
+#                                                                  #
+# Sub Sections in the configuration:                               #
+# - delete - Required for the delete_certificate task.             #
+# - configure - Requried for the configure_certificate task.       #
+# - tls_certificate - Requried for the set_tls_certificate task.   #
+####################################################################
+certificate_configs:
+##############################################################################################################################################
+  # The list of certificates that are to be deleted.
+  # The certificate_identifier is a mandatory variable.
+  # In case the node_to_certificate_identifier_mapping variable is given then it 
+  # wil be used for obtaining the certificate_identifier for each of the Node(TID).
+  delete:
+    - certificate_identifier          : tls1 # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCAL # The type of the certificate.
+      # Node(TID) to certificate_identifier mapping
+      node_to_certificate_identifier_mapping:
+        "XTC284": "tls1"
+        "XTC286": "tls2"
+
+    - certificate_identifier          : TLS # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCAL # The type of the certificate.
+      # Node(TID) to certificate_identifier mapping
+      node_to_certificate_identifier_mapping:
+        "XTC284": "tls1"
+        "XTC286": "tls2"
+
+##############################################################################################################################################
+  # The list of certificates that are to be configured.
+  # In case the node_to_certificate_identifier_mapping variable is given then it 
+  # wil be used for obtaining the certificate_identifier for each of the Node(TID).
+  configure:
+    - certificate_identifier          : tls # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCAL # The type of the certificate.
+      label                           : CERT123 # The label for the certificate.
+      pass_phrase                     : Infinera # The passphrase value for the certificate(Applicable for LOCAL ones).
+      server                          : "{{ ftp_server.CERT_SERVER }}" # This is the server from which the certificate is going to be downloaded. Refer group_vars/ftp_server.yml.
+      # A forward slash(/) is added to the front of the path internally.
+      # That is, the path in the example is treated as /exports/images/naveen/CERT_20thMar/server_certificate.p12 when configuring a certificate
+      path_to_file                    : exports/images/naveen/CERT_20thMar/server_certificate.p12 # The path to the certificate file including the FILE NAME AND FILE EXTENSION.
+      # Node(TID) to certificate_identifier mapping
+      node_to_certificate_identifier_mapping:
+        "XTC284": "tls1"
+        "XTC286": "tls2"
+
+    - certificate_identifier          : tlscert # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCAL # The type of the certificate.
+      label                           : CERT123 # The label for the certificate.
+      pass_phrase                     : Infinera # The passphrase value for the certificate(Applicable for LOCAL ones).
+      server                          : "{{ ftp_server.CERT_SERVER }}" # This is the server from which the certificate is going to be downloaded. Refer group_vars/ftp_server.yml.
+      # A forward slash(/) is added to the front of the path internally.
+      # That is, the path in the example is treated as /exports/images/naveen/CERT_20thMar/server_certificate.p12 when configuring a certificate
+      path_to_file                    : exports/images/DY/server_certificate.p12 # The path to the certificate file including the FILE NAME AND FILE EXTENSION.
+      # Node(TID) to certificate_identifier mapping
+      node_to_certificate_identifier_mapping:
+        "XTC284": "tlscert1"
+        "XTC286": "tlscert2"
+
+##############################################################################################################################################
+  # The below configuration variables are required to set the TLS certificate to an existing one that is already configured on the NE.
+  # In case the node_to_certificate_identifier_mapping variable is given then it 
+  # wil be used for obtaining the certificate_identifier for each of the Node(TID).
+  tls_certificate:
+    # The time in seconds upto which TLS session can be inactive.
+    # The values range from 1 to 600
+    # If no value is provided then a value of 180 is configured.
+    idle_time: 240
+    # The time in seconds until which the TLS session can be active.
+    # If 0 is given, the session never times out.
+    # Values range from 0 to 172800
+    # If no value is provided then a value of 86400 is configured.
+    connection_time: 2500
+    certificate_identifier            : tls # Name of the TLS certificate, required for enabling HTTPS setting on the NE.
+    # Node(TID) to certificate_identifier mapping
+    node_to_certificate_identifier_mapping:
+      "XTC284": "tls1"
+      "XTC286": "tls2"

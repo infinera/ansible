@@ -1,0 +1,49 @@
+---
+
+- name: Validating the Database configs
+  include_tasks: db_configs_validation.yml
+
+- name: Retrieving Current Database Image
+  include_tasks : retrieve_database_images.yml
+
+- name: Failing in case the DB image is not present , skipping the task otherwise
+  fail:
+    msg: Input DB is not present in the NE
+  when: "{{ lookup('template', 'check_db_present.j2') }}"
+
+- name: Database Image - Pre Restoration
+  set_fact:
+    pre_res_img: "{{ lookup('template', 'current_db_name.j2') }}"
+
+- name: Restoring the Database
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'restore.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: restore_db_res
+  changed_when: restore_db_res.status == 'SUCCESS'
+  failed_when: restore_db_res.status == 'FAILURE'
+
+- name: "Pausing for {{ db_configs.restore_pause | default(restore_pause) }} minutes"
+  pause:
+    minutes: "{{ db_configs.restore_pause | default(restore_pause) }}"
+
+- name: Checking if the Network Element is reachable
+  include_tasks: availability.yml
+
+- name: Retrieving Current Database Image
+  include_tasks : retrieve_database_images.yml
+
+- name: Database Image - Post Restoration
+  set_fact:
+    post_res_img: "{{ lookup('template', 'current_db_name.j2') }}"
+
+- name: Failing in case the Restoration is not successful , skipping the task otherwise
+  fail:
+    msg: "Restoration Failed"
+  when: pre_res_img == post_res_img
+
+- name: Summary of DB Restore
+  debug :
+    msg : "{{ lookup('template', 'restore-db-summary.j2') }}"

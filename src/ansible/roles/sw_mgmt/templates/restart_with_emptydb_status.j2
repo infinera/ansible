@@ -1,0 +1,7 @@
+{%- set ret_val = {"msg": '', "status": ''} -%}
+{%- if chk_rtrv_sw_info_res.status == "FAILURE" -%}
+    {%- set dummy = ret_val.update({"msg": "Restart With Empty DB is Successful. Could not login to the Network Element with existing credentials.", "status": "SUCCESS"}) -%}
+{%- else -%}
+    {%- set dummy = ret_val.update({"msg": "Restart With Empty DB is not Successful. Could login to the Network Element with existing credentials.", "status": "FAILURE"}) -%}
+{%- endif -%}
+{{- ret_val -}}

@@ -1,0 +1,87 @@
+---
+
+- name: Validating the Database configs
+  include_tasks: db_configs_validation.yml
+
+- name: Retrieving Database Image Information
+  include_tasks: retrieve_database_images.yml
+
+- name: Set Opr type to Download/Restore
+  set_fact:
+    opr_type: "restore"
+
+- name: Download DB Backup image if not present in NE ,else skip below tasks
+  set_fact:
+    is_db_not_present: "{{ lookup('template', 'check_db_present.j2') }}"
+
+- name: Download DB Backup image
+  block:
+    - name: Set FTP Server Type
+      set_fact:
+        ftp_server_type: "restore"
+
+    - name: Configuring Transfer Protocol
+      include_tasks: configure_protocol.yml
+
+    - name: Downloading the Database from the FTP server
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'download_db.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: down_db_res
+      changed_when: down_db_res.status == 'SUCCESS'
+      failed_when: down_db_res.status == 'FAILURE'
+    
+    - name: Pausing for the NE to check the file
+      pause:
+        minutes: 1
+
+    - name: Set FTP File type to RFR
+      set_fact:
+        ftp_file_type : "RFR"
+    
+    - name: Retrieving file transfer status
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'rtrv_FXFR.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: chk_db_rs_res
+      until: '{%- set res = chk_db_rs_res["RETRIEVE FXFR"].result["Component-0"]["Parameters"] -%}{%- if res.CURRXFRSTATE |upper  == "IDLE" or res.CURRXFRSTATE |upper == "SCHEDULED" -%}{{- true -}}{%- else -%}{{- false -}}{%- endif -%} '
+      retries: "{{ db_configs.check_db_rs_retries | default(5) }}"
+      delay: "{{ db_configs.check_db_rs_delay | default(5) }}"
+    
+    - name: Renaming Raw Response Parameters
+      infn_mapper:
+        mapper: "{{ db_mapper }}"
+        tl1_response: "{{ chk_db_rs_res }}"
+      register: mapped_chk_db_rs_res
+      when:
+        - db_mapper is defined
+
+    - name: Result of the retrieval
+      debug:
+        msg: "{%- if mapped_chk_db_rs_res.skipped | default(false) -%}{{- chk_db_rs_res -}}{%- else -%}{{- mapped_chk_db_rs_res -}}{%- endif -%} "
+    
+    - name: Set fact - failed_db_download
+      set_fact:
+        failed_db_download: "{{ lookup('template', 'fail-db-download.j2') }}"
+    
+    - name: Failing in case the DB has not been downloaded , skipping the task otherwise
+      fail:
+        msg: "{{ lookup('template', 'fail-db-download-msg.j2') }}"
+      when: failed_db_download == true
+    
+    - name: Retrieving Database Image Information
+      include_tasks: retrieve_database_images.yml
+    
+    - name: Listing the Database Images
+      set_fact:
+        DB_Images: "{{ lookup('template', 'list_db_images.j2') }}"
+      
+  when : is_db_not_present == true
+
+- name: Summary of DB Download
+  debug :
+    msg : "{{ lookup('template', 'download-db-summary.j2') }}"

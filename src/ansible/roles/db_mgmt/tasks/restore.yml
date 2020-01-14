@@ -1,0 +1,9 @@
+---
+
+- name: Database Restoration
+  block:
+    - name: Download Database
+      include_tasks: download.yml
+
+    - name: Restore Database
+      include_tasks: restore_task.yml

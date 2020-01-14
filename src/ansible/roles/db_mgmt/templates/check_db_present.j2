@@ -1,0 +1,16 @@
+{%- set db_info = rtrv_db_img_res["RETRIEVE RFILE"].result -%}
+{%- set file_name = 'DB_%s_%s'| format (db_configs[opr_type].run_id,TID) -%}
+    {%- if db_configs[opr_type].file_mapping is defined -%}
+        {%- if db_configs[opr_type].file_mapping[TID] is defined -%}
+            {%- set file_name = db_configs[opr_type].file_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- set ret_flag = {"ret": true} -%}
+{%- for key, value in db_info.iteritems() -%}
+    {%- if "Component" in key -%}
+        {%- if value.Parameters.USAGE | upper != "CURRENT" and value.Parameters.FILE == file_name  -%}
+            {%- set dummy = ret_flag.update({"ret":false}) -%}
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+{{- ret_flag.ret -}}

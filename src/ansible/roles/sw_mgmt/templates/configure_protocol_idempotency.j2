@@ -1,0 +1,13 @@
+{%- if existing_protocol_res["RETRIEVE DEFAULT(S) SECURITY ATTRIBUTES"].result["Component-0"].Parameters["FXFRSSH"] == "false" -%}
+    {%- if sw_configs.download.ftp_server.protocol == "ftp" -%}
+        {{- false -}}
+    {%- else -%}
+        {{- true -}}
+    {%- endif -%}
+{%- else -%}
+    {%- if sw_configs.download.ftp_server.protocol == "sftp" -%}
+        {{- false -}}
+    {%- else -%}
+        {{- true -}}
+    {%- endif -%}
+{%- endif -%}

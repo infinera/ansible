@@ -1,0 +1,39 @@
+---
+
+# Configurations for the tasks in the NEConfig role.
+certificate_configs:
+  # The list of certificates that are to be retrieved.
+  retrieve:
+    - certificate_identifier          : ASDF # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCALCERT # The type of the certificate.
+      shelf_identifier                : 1 # Shelf ID
+
+  # The list of certificates that are to be deleted.
+  delete:
+    - certificate_identifier          : tls1 # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCALCERT # The type of the certificate.
+      shelf_identifier                : 1 # Shelf ID
+
+    - certificate_identifier          : tls2 # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCALCERT # The type of the certificate.
+      shelf_identifier                : 1 # Shelf ID
+
+  # The list of certificates that are to be retrieved.
+  configure:
+    - certificate_identifier          : tls1 # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCALCERT # The type of the certificate.
+      label                           : CERT123 # The label for the certificate.
+      pass_phrase                     : Infinera # The passphrase value for the certificate(Applicable for LOCAL ones).
+      uri                             : sftp://infinera:infinera2@10.220.73.152:/exports/images/naveen/CERT_20thMar/server_certificate.p12 # The sftp uri, enclosed in double quotes
+      shelf_identifier                : 1 # The shelf ID of the chassis where the certificate is created.
+
+    - certificate_identifier          : tls2 # The unique serial number issued by the Certificate Authority.
+      certificate_type                : LOCALCERT # The type of the certificate.
+      label                           : CERT123 # The label for the certificate.
+      pass_phrase                     : Infinera # The passphrase value for the certificate(Applicable for LOCAL ones).
+      uri                             : sftp://infinera:infinera2@10.220.73.152:/exports/images/DY/server_certificate.p12 # The sftp uri, enclosed in double quotes
+      shelf_identifier                : 1 # The shelf ID of the chassis where the certificate is created.
+
+  tls_certificate:
+    certificate_identifier            : ASDF # Name of the TLS certificate, required for enabling HTTPS setting on the NE.
+    shelf_identifier                  : 1

@@ -1,0 +1,131 @@
+{
+    "title": "IQNOS ACF Configs",
+    "description": "The schema for the Access Control Filters Configs",
+    "type": "object",
+    "properties": {
+        "create": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/ACFList"
+            }
+        },
+        "delete": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "maxLength": 128
+            }
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "ACFList": {
+            "description": "The ACF List structure",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Unique AID for the ACF rule",
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "label": {
+                    "description": "Label for the ACF rule",
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "interface": {
+                    "description": "Specifies the interface to which the ACF rules must be applied",
+                    "type": "string",
+                    "pattern": "(?i)^(dcn|aux|igcc|osc|all)$"
+                },
+                "protocol": {
+                    "description": "Specifies which protocol the filter will be applied to",
+                    "type": "string",
+                    "pattern": "(?i)^(tcp|udp|icmp|all)$"
+                },
+                "source_address": {
+                    "description": "Specifies the source IP address filtered by this ACF",
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "format": "ipv4"
+                        },
+                        {
+                            "format": "ipv6"
+                        }
+                    ]
+                },
+                "source_prefix_length": {
+                    "description": "Source IP prefix length",
+                    "type": "integer"
+                },
+                "source_port": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                "source_port_range": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                "dest_address": {
+                    "description": "",
+                    "type": "string",
+                    "oneOf": [
+                        {
+                            "format": "ipv4"
+                        },
+                        {
+                            "format": "ipv6"
+                        }
+                    ]
+                },
+                "dest_prefix_length": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "dest_port": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                "dest_port_range": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                "operation": {
+                    "description": "Action to be taken by the acf",
+                    "type": "string",
+                    "pattern": "(?i)^(accept|drop|reject|log)$"
+                },
+                "direction": {
+                    "description": "",
+                    "type": "string",
+                    "pattern": "(?i)^(input|output)$"
+                },
+                "sequence": {
+                    "description": "",
+                    "type": "integer",
+                    "minimum": 200,
+                    "multipleOf": 100
+                }
+            },
+            "required": [
+                "name",
+                "direction",
+                "operation",
+                "interface",
+                "sequence",
+                "protocol"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

@@ -1,0 +1,190 @@
+---
+
+- name: Fail if input configurations (enable_lc_configs) is not defined
+  fail:
+    msg: "enable_lc_configs is not defined"
+  when: enable_lc_configs is not defined
+
+- name: Validating Enable LC configs
+  infn_cfg_validator:
+    what_is_being_validated: "Enable LC Configurations - enable_lc_configs"
+    configs: "{{ enable_lc_configs }}"
+    schema: "{{ lookup('file', 'files/enable_lc_configs_schema.json') | from_json | string }}"
+  register: enable_lc_configs_validation_res
+  changed_when: false
+  failed_when: not enable_lc_configs_validation_res.validated
+
+- name: Retrieve TIM(s) Configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_TIM.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_tim_res
+  changed_when: false
+  failed_when: rtrv_tim_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ eqpt_mapper }}"
+    tl1_response: "{{ rtrv_tim_res }}"
+  register: mapped_rtrv_tim_res
+  when:
+    - eqpt_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_tim_res.skipped | default(false) -%}{{- rtrv_tim_res -}}{%- else -%}{{- mapped_rtrv_tim_res -}}{%- endif -%}"
+
+- name: Retrieving OTU4 Configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_OTU4.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_otu4_res
+  changed_when: false
+  failed_when: rtrv_otu4_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ facility_mapper['OTU4'] }}"
+    tl1_response: "{{ rtrv_otu4_res }}"
+  register: mapped_rtrv_res
+  when:
+    - facility_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_otu4_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%}"
+
+- name: Retrieving ODU4 Configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_ODU4.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_odu4_res
+  changed_when: false
+  failed_when: rtrv_odu4_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ facility_mapper['ODU4'] }}"
+    tl1_response: "{{ rtrv_odu4_res }}"
+  register: mapped_rtrv_res
+  when:
+    - facility_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_odu4_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%}"
+
+- name: Verifying if XCON Operations are Required
+  set_fact: 
+    xcon_list: "{{ lookup('template', 'verify_modes.j2') }}"
+
+- name: XCON Operations
+  block:
+    - name: Retrieving XCON(s)
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands_and_inputs: "{{ lookup('template', 'xcon_retrieve.j2') }}"
+        output: "json"
+        save: "{{ module_save_file | default('infn_tl1') }}.txt"
+      register: xcon_retrieve_res
+      changed_when: false
+
+    - name: Renaming Raw Response Parameters
+      infn_mapper:
+        mapper: "{{ xcon_mapper }}"
+        tl1_response: "{{ xcon_retrieve_res }}"
+      register: mapped_rtrv_res
+      when:
+        - xcon_mapper is defined
+
+    - name: Result of the retrieval
+      debug:
+        msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- xcon_retrieve_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%} "
+
+    - name: Verifying if XCON(s) is(are) Present
+      set_fact : 
+        is_xcon_not_present_list : "{{ lookup('template', 'xcon_check.j2') }}"
+  
+    - name : Create and delete xcon if required
+      block:
+        - name: "{{ 'Create XCON '}}"
+          infn_tl1:
+            provider: "{{ tl1 }}"
+            commands_and_inputs: "{{ lookup('template', 'xcon_create.j2') }}"
+            output: "json"
+            save: "{{ module_save_file | default('infn_tl1') }}.txt"
+          register: rtrv_fac_res
+          changed_when: rtrv_fac_res.status == "SUCCESS"
+          failed_when: rtrv_fac_res.status == "FAILURE"
+        
+        - name: "{{ 'Delete XCON '}}"
+          infn_tl1:
+            provider: "{{ tl1 }}"
+            commands_and_inputs: "{{ lookup('template', 'xcon_delete.j2') }}"
+            output: "json"
+            save: "{{ module_save_file | default('infn_tl1') }}.txt"
+          register: rtrv_fac_res
+          changed_when: rtrv_fac_res.status == "SUCCESS"
+          failed_when: rtrv_fac_res.status == "FAILURE"
+      when : is_xcon_not_present_list | length > 0
+  when: xcon_list.values() | list | select("equalto", "xcon_required") | list | length > 0
+
+- name: Retrieving OTU4 Configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_OTU4.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_otu4_res
+  changed_when: false
+  failed_when: rtrv_otu4_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ facility_mapper['OTU4'] }}"
+    tl1_response: "{{ rtrv_otu4_res }}"
+  register: mapped_rtrv_res
+  when:
+    - facility_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_otu4_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%}"
+
+- name: Retrieving ODU4 Configurations
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_ODU4.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_odu4_res
+  changed_when: false
+  failed_when: rtrv_odu4_res.status == "FAILURE"
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ facility_mapper['ODU4'] }}"
+    tl1_response: "{{ rtrv_odu4_res }}"
+  register: mapped_rtrv_res
+  when:
+    - facility_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_res.skipped | default(false) -%}{{- rtrv_odu4_res -}}{%- else -%}{{- mapped_rtrv_res -}}{%- endif -%}"
+
+- name: Service Mode and Facility Monitoring Mode for OTU4 and ODU4
+  set_fact:
+    facilities_modes: "{{ lookup('template', 'modes_for_facilities.j2') }}"
+
+- name: Summary of the Task
+  debug:
+    msg: "{{ lookup('template', 'enable_lc_message.j2') }}"
+  failed_when: '"ODUk" in xcon_list[item.key] or "FACILITIES DO NOT EXIST" in xcon_list[item.key]'
+  with_items: "{{ facilities_modes | dict2items }}"

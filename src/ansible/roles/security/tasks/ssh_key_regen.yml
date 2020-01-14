@@ -1,0 +1,11 @@
+---
+
+- name: Regenerating SSH keys
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'ssh_key_regen.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: ssh_key_regen_res
+  changed_when: ssh_key_regen_res.status == 'SUCCESS' 
+  failed_when: ssh_key_regen_res.status == 'FAILURE'

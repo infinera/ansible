@@ -1,0 +1,17 @@
+{%- macro chk_for_idmp() -%}
+    {%- set cfg_mod = server_configs -%}
+    {%- set rtrv_res = rtrv_res["RETRIEVE NTP"].result -%}
+    {%- for key,value in server_configs.iteritems() -%}
+        {%- set cfg_vals = [("ipaddress", value.ipaddress | default('') | ipaddr)] -%}
+        {%- set ne_vals = [("ipaddress", rtrv_res["NTP-" + key[-1]].Parameters.NTPADDR | ipaddr)] -%}
+        {%- for attr_name, cfg_val in cfg_vals -%}
+            {%- if (cfg_val != false) -%}
+                {% if cfg_val == ne_vals[loop.index0][1] -%}
+                    {%- set dummy = cfg_mod.update({key: value | remfromdict(attr_name)}) -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endfor -%}
+    {{- cfg_mod -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

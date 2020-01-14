@@ -1,0 +1,22 @@
+---
+
+- name: Retrieve SSH FingerPrint & public key
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'retrieve_ssh_keys.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_ssh_keys_res
+  failed_when: rtrv_ssh_keys_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ ssh_mapper }}"
+    tl1_response: "{{ rtrv_ssh_keys_res }}"
+  register: mapped_rtrv_ssh_keys_res
+  when:
+    - ssh_mapper is defined
+
+- name: Printing the Retrieved FingerPrint & public key
+  debug:
+        msg: "{%- if mapped_rtrv_ssh_keys_res.skipped | default(false) -%}{{- rtrv_ssh_keys_res -}}{%- else -%}{{- mapped_rtrv_ssh_keys_res -}}{%- endif -%}"

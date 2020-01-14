@@ -1,0 +1,15 @@
+---
+
+# The comment after the number indicates what kind of an entity it represents.
+
+# backup
+check_backup_retries: 5 # Number
+check_backup_delay: 60 # Seconds
+
+# restore
+restore_pause: 5 # Minutes
+
+# availability
+availability_timeout: 1 # Seconds
+availability_retries: 5 # Number
+availability_delay: 10 # Seconds

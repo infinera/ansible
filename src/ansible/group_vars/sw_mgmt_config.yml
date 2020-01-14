@@ -1,0 +1,37 @@
+---
+
+sw_configs:
+  # Time in minutes to wait to check NE availability after restart_with_emptydb operation 
+  restart_with_emptydb_wait_time: 10
+  
+  # Time in minutes to wait to check NE availability after revert operation 
+  revert_wait_time: 10
+  
+  # Time in minutes to wait to check NE availability after fresh_install operation 
+  fresh_install_wait_time: 10
+
+  # Time in minutes to wait for after the prepare operation has been initiated
+  prepare_wait_time: 20
+  
+  # Time in minutes to wait after the upgrade operation has been initiated
+  upgrade_wait_time: 30
+
+  # To download SW image from FTP server to NE
+  download :
+    # ftp server details , please refer ftp_server.yml 
+    ftp_server: "{{ ftp_server.SERVER_2 }}"
+    path: "/home/pub/R18.2.10.0204/tar_ne/SIM/XTC2"
+    sw_image_version: R18.2.10.0204
+    # Arch type is sim/ppc/x86 and file with name R18.2.10.0118.<sim/ppc/x86>.tar.gz should be present in FTP Server
+    arch: sim
+    # Time to wait to check NE availability after download operation 
+    wait_time: 15
+  
+  # Revert / downgrade to older version
+  revert:
+    # run_id used for taking backup
+    run_id: "UNIQUE_RUN_ID" 
+    #db_file_mapping is used when you want to use diffrent DB names for diffrent NEs  
+    db_file_mapping: 
+      "NE1": "DB_UNIQUE_RUN_ID_CUSTOM_FILE" #add here all NE name to DB name mapping if DB name is not in format DB_backup_08_05_15_NODENAME
+      "NE2": "DB_UNIQUE_RUN_ID_CUSTOM_FILE" #add here all NE name to DB name mapping if DB name is not in format DB_backup_08_05_15_NODENAME 

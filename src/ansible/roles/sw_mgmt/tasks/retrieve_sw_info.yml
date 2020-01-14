@@ -1,0 +1,30 @@
+---
+
+- name: Retreiving Software Image(s) Information
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'get-sw.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: rtrv_sw_info_res
+  failed_when: rtrv_sw_info_res.status == 'FAILURE'
+
+- name: Renaming Raw Response Parameters
+  infn_mapper:
+    mapper: "{{ sw_mapper }}"
+    tl1_response: "{{ rtrv_sw_info_res }}"
+  register: mapped_rtrv_sw_info_res
+  when:
+    - sw_mapper is defined
+
+- name: Result of the retrieval
+  debug:
+    msg: "{%- if mapped_rtrv_sw_info_res.skipped | default(false) -%}{{- rtrv_sw_info_res -}}{%- else -%}{{- mapped_rtrv_sw_info_res -}}{%- endif -%} "
+
+- name: Set  Current Software file Information
+  set_fact:
+    current_sw_version: "{{ lookup('template', 'current_sw_version.j2') }}"
+
+- name: Set Non Current Software file Information
+  set_fact:
+    non_current_sw_version: "{{ lookup('template', 'non_current_sw_version.j2') }}"

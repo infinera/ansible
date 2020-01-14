@@ -1,0 +1,21 @@
+---
+
+- name: Validating Autotti Settings Configs
+  include_tasks: facility_autotti_settings_configs_validation.yml
+
+- name: Retrieving {{ facility_autotti_settings_configs.facility }}
+  include_tasks: retrieve_facility.yml
+
+- name: Comparing the input against existing configurations
+  set_fact:
+    fac_autotti_configs: "{{ lookup('template', 'facility_autotti_settings_idempotency.j2') }}"
+
+- name: Changing AUTOTTI Settings for {{ facility_autotti_settings_configs.facility }}
+  infn_tl1:
+    provider: "{{ tl1 }}"
+    commands_and_inputs: "{{ lookup('template', 'edit_facility_autotti_settings.j2') }}"
+    output: "json"
+    save: "{{ module_save_file | default('infn_tl1') }}.txt"
+  register: edit_facility_autotti_settings_res
+  changed_when: edit_facility_autotti_settings_res.status == "SUCCESS"
+  failed_when: edit_facility_autotti_settings_res.status == "FAILURE"

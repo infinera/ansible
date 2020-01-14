@@ -1,0 +1,17 @@
+{%- macro chk_for_idmp() -%}
+    {%- set cfg_mod = server_configs -%}
+    {%- set rad_rtrv_res = rad_rtrv_res["RETRIEVE RADIUS"].result -%}
+    {%- for key,value in server_configs.iteritems() -%}
+        {%- set cfg_vals = [("ipaddress", value.ipaddress | default('') | ipaddr), ("timeout", value.timeout | default(0)), ("port", value.port | default(0)), ("max_attempts", value.max_attempts | default(0))] -%}
+        {%- set ne_vals = [("ipaddress", rad_rtrv_res["RAD" + key | upper].Parameters.RADIPADDR | ipaddr), ("timeout", rad_rtrv_res["RAD" + key | upper].Parameters.RADARTMOUT | int), ("port", rad_rtrv_res["RAD" + key | upper].Parameters.RADAUTHPORT | int), ("max_attempts", rad_rtrv_res["RAD" + key | upper].Parameters.MAXATMPTS | replace('\"', '') | int)] -%}
+        {%- for attr_name, cfg_val in cfg_vals -%}
+            {%- if (cfg_val != 0) and (cfg_val != false) -%}
+                {% if cfg_val == ne_vals[loop.index0][1] -%}
+                    {%- set dummy = cfg_mod.update({key: value | remfromdict(attr_name)}) -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endfor -%}
+    {{- cfg_mod -}}
+{%- endmacro -%}
+{{- chk_for_idmp() -}}

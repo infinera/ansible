@@ -1,0 +1,15 @@
+{%- set to_delete = [] -%}
+{%- set retrieved_keys = rtrv_cert_res["RETRIEVE CERT"].result.keys() | list -%}
+{%- for certificate_config in certificate_configs.delete -%}
+    {%- set cert_id = certificate_config.certificate_identifier -%}
+    {%- if certificate_config.node_to_certificate_identifier_mapping is defined -%}
+        {%- if certificate_config.node_to_certificate_identifier_mapping[TID] is defined -%}
+           {%- set cert_id = certificate_config.node_to_certificate_identifier_mapping[TID] -%}
+        {%- endif -%}
+    {%- endif -%}
+    {%- set aid = node_controller_shelf_identifier | string + '-' + cert_id -%}
+    {%- if aid in retrieved_keys -%}
+        {{- to_delete.append(certificate_config) -}}
+    {%- endif -%}
+{%- endfor -%}
+{{- to_delete -}}

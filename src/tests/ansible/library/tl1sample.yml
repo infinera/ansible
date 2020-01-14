@@ -1,0 +1,16 @@
+---
+- hosts: tl1_ne
+  connection: local
+  vars:
+    tl1:
+      host: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+      username: "{{ hostvars[inventory_hostname]['ansible_user'] }}"
+      password: "{{ hostvars[inventory_hostname]['ansible_password'] }}"
+  tasks:
+    - name: Check Alarms and Equipment
+      infn_tl1:
+        provider: "{{ tl1 }}"
+        commands:
+        - RTRV-ALM-ALL:::c
+        - RTRV-EQPT:::c
+        save: "logs_tl1/log_{{ hostvars[inventory_hostname]['ansible_host'] }}.txt"

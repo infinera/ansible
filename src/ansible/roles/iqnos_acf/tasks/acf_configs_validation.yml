@@ -1,0 +1,37 @@
+---
+
+- name: Fail if input configurations (acf_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "acf_configs is not defined" 
+  when: acf_configs is not defined
+
+- name: Validating Access Control Filters
+  block:
+    - name: Duplicate sequence check
+      assert:
+        that:
+          acf_configs.create  | map(attribute='sequence') | list | count
+          ==
+          acf_configs.create | map(attribute='sequence') | list | unique | count
+        success_msg: The sequence numbers are unique
+        fail_msg: The sequence numbers are not unique, please check the configurations
+      when: (acf_configs | default({})).create is defined
+    
+    - name: Duplicate identifier check
+      assert:
+        that:
+          acf_configs.create  | map(attribute='name') | list | count
+          ==
+          acf_configs.create | map(attribute='name') | list| unique(case_sensitive=True) | count
+        success_msg: The identifiers are unique
+        fail_msg: The identifiers are not unique, please check the configurations
+      when: (acf_configs | default({})).create is defined
+
+    - name: Validating the Access Control Filters list
+      infn_cfg_validator:
+        what_is_being_validated: "Access Control Filters(ACFs) Configurations - acf_configs"
+        configs: "{{ acf_configs }}"
+        schema: "{{ lookup('file', 'acf_configs_schema.json') | from_json | string }}"
+      register: acf_list_validation_res
+      changed_when: false
+      failed_when: not acf_list_validation_res.validated

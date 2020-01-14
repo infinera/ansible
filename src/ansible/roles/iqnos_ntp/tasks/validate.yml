@@ -1,0 +1,43 @@
+---
+
+- name: Fail if input configurations (server_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "server_configs is not defined" 
+  when: server_configs is not defined
+
+- name: Validating the server configs
+  infn_cfg_validator:
+    what_is_being_validated: "NTP Server Configurations - server_configs"
+    configs: "{{ server_configs }}"
+    schema: "{{ lookup('file', 'ntp_config_schema.json') | from_json | string }}"
+  register: validation_res
+  changed_when: false
+  failed_when: not validation_res.validated
+
+- name: Fail if input configurations (state_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "state_configs is not defined" 
+  when: state_configs is not defined
+
+- name: Validating the state configs
+  infn_cfg_validator:
+    what_is_being_validated: "NTP State Configurations - state_configs"
+    configs: "{{ state_configs }}"
+    schema: "{{ lookup('file', 'ntp_state_schema.json') | from_json | string }}"
+  register: state_validation_res
+  changed_when: false
+  failed_when: not state_validation_res.validated
+
+- name: Fail if input configurations (alarm_configs) is not defined, skipping the task otherwise
+  fail:
+    msg: "alarm_configs is not defined" 
+  when: alarm_configs is not defined
+
+- name: Validating the alarm configs
+  infn_cfg_validator:
+    what_is_being_validated: "NTP Alarm Configurations - alarm_configs"
+    configs: "{{ alarm_configs }}"
+    schema: "{{ lookup('file', 'ntp_state_schema.json') | from_json | string }}"
+  register: alarm_validation_res
+  changed_when: false
+  failed_when: not alarm_validation_res.validated

@@ -1,0 +1,10 @@
+{# {%- if ssh_configs.key_type == "rsa" -%}
+    {%- set key_type = "SSHKEY-RSA" -%}
+{%- else -%}
+    {%- set key_type = "SSHKEY-ECDSA" -%}
+{%- endif -%}
+OPR-SSH-KEYGEN:{{ TID }}::CTAG:::ACCOUNTNAME=xml,SSHKEYTYPE={{ key_type }}:; #}
+{%- set command_ip_map = {} -%}
+{%- set cmd = "OPR-SSH-KEYGEN:%s::CTAG;" | format(TID) -%}
+{%- set dummy = command_ip_map.update({cmd: {}}) -%}
+{{- command_ip_map -}}
